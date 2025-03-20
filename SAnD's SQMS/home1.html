@@ -1,0 +1,306 @@
+<!doctype html>
+<html>
+
+<head>
+
+    <title>SAnD's SQMS</title>
+    <style>
+        body {
+            display: flex;
+            background-color: #0c2a5d;
+            font-family: arial;
+            justify-content: right;
+            align-items: right;
+        }
+
+        .head button {
+
+            flex: 1;
+            width: 337px;
+            height: 50px;
+            margin: 2px;
+            padding: 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 17px;
+            color: #3b75d6;
+            margin-top: 30px;
+            border-radius: 10px;
+
+        }
+
+        .head button:hover {
+
+            background-color: #3b75d6;
+            color: white;
+        }
+
+        .login-container {
+
+            background: #3b75d6;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 300px;
+            height: 450px;
+            margin-top: 20px;
+            margin-right: 100px;
+
+
+            color: white;
+
+        }
+
+        s .login-container h2 {
+            margin-bottom: 20px;
+        }
+
+        .input {
+            margin-bottom: 10px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .input label {
+            display: block;
+            font-size: 14px;
+        }
+
+        .input input {
+            width: 93%;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        .input select {
+            width: 100%;
+            padding: 7px;
+            border-radius: 5px;
+            border: none;
+            margin-bottom: 30px;
+        }
+
+        .get-ticket button {
+            flex: 1;
+            width: 250px;
+            height: 50px;
+            margin: 5px;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 17px;
+            color: #3b75d6;
+            margin-top: none;
+            border-radius: 10px;
+
+        }
+
+        button:hover {
+
+            background-color: #0c2a5d;
+            color: white;
+        }
+
+        .board {
+            background-color: white;
+            width: 620px;
+            height: 430px;
+            margin-top: 30px;
+            margin-right: 110px;
+            padding: 20px;
+            border-radius: 10px;
+
+        }
+
+        th,
+        td {
+            padding: 5px;
+        }
+
+        th {
+            color: #3b75d6;
+            font-size: 15px;
+        }
+
+        .UB {
+            display: flex;
+            font-size: 12px;
+            margin-top: none;
+
+        }
+
+        .UB div {
+            padding: 15px;
+
+        }
+
+        .status-section {
+            text-align: center;
+            margin: 30px 0;
+            margin-bottom: 30px;
+        }
+
+        .current-status {
+            font-size: 18px;
+            color: #0c2a5d;
+            font-weight: bold;
+        }
+
+        .date {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .metrics-section {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin-top: 30px;
+
+        }
+
+        .metric {
+            flex: 1;
+        }
+
+        .metric-value {
+            font-size: 40px;
+            font-weight: bold;
+            color: #0c2a5d;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h1 style="color: white; margin-top: 40px;  margin-right: 30px; font-size: 32px;"><b>SAnD's Smart Queue
+                Management System <b>
+        </h1>
+        <div class="board">
+            <div class="UB">
+                <div>
+                    <table>
+                        <tr>
+                            <th colspan="2">Open</th>
+                        </tr>
+                        <tr>
+                            <td> MON </td>
+                            <td> 9:00AM - 5:00PM </td>
+                        </tr>
+                        <tr>
+                            <td> TUE </td>
+                            <td> 9:00AM - 5:00PM </td>
+                        </tr>
+                        <tr>
+                            <td> WED </td>
+                            <td> 9:00AM - 5:00PM </td>
+                        </tr>
+                        <tr>
+                            <td> THU </td>
+                            <td> 9:00AM - 5:00PM </td>
+                        </tr>
+                        <tr>
+                            <td> FRI </td>
+                            <td> 9:00AM - 5:00PM </td>
+                        </tr>
+                        <tr>
+                            <td> SAT </td>
+                            <td>CLOSED</td>
+                        </tr>
+                        <tr>
+                            <td> SUN </td>
+                            <td> CLOSED </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div>
+                    <table>
+                        <tr>
+                            <th>Popular Days</th>
+                        </tr>
+                        <tr>
+                            <td> Moderately Busy</td>
+                        </tr>
+                        <tr>
+                            <td>Moderately Busy</td>
+                        </tr>
+                        <tr>
+                            <td> Very Busy </td>
+                        </tr>
+                        <tr>
+                            <td> Lightly Busy </td>
+                        </tr>
+                        <tr>
+                            <td> Busy </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="status-section">
+                <div class="current-status">Currently Moderately Busy</div>
+                <div class="date">Friday, March 8, 2025</div>
+            </div>
+            <div class="metrics-section">
+                <div class="metric">
+                    <div class="metric-value">20</div>
+                    <div class="metric-label">Visitor's currently waiting</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">10<span style="font-size: 24px">mins</span></div>
+                    <div class="metric-label">Average waiting time</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="head">
+            <button style="  padding: 8px;"> <b>Login as a Staff</b> </button>
+        </div>
+        <div class="login-container">
+            <h2>Sign in to SAnD's SQMS</h2>
+
+            <div class="input">
+                <div>
+                    <label> <b>First Name </b></label>
+                    <input type="text" placeholder=" enter your phone number or email">
+                </div>
+                <div>
+                    <label> <b>Customer Number or Phone Number </b></label>
+                    <input type="text" placeholder="Enter your password">
+                </div>
+
+                <div>
+                    <label><b>Select a branch</b></label>
+                    <select>
+                        <option value="">branch</option>
+                    </select>
+                </div>
+                <div>
+                    <label><b>select a service</b></label>
+                    <select>
+                        <option value="">Service</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="get-ticket">
+                <button> <b>Get a Ticket</b> </button>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
