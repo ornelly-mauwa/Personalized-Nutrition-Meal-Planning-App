@@ -1,16 +1,24 @@
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlatList, Image, RefreshControl, Text, View } from "react-native";
+import { Link } from "expo-router";
 
 
-
-const Home = () => {
+const home = () => {
 
   return (
     <SafeAreaView >
-      <Text>home</Text>
+      <Text>welcome home</Text>
+
+      <Link href="/(user)/store">View Store</Link>
+
+
+      <Link href="/(user)/favori">View Favorites</Link>
+
+
+
     </SafeAreaView>
   );
 };
 
-export default Home;
+export default home;
