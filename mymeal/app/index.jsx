@@ -31,7 +31,7 @@ const Welcome = () => {
   }, [isLogged]);
 
   if (!loading && isLogged && !checkingRole) {
-    if (userRole === "admin") return <Redirect href="/admin-dashboard" />;
+    if (userRole === "admin") return <Redirect href="/adindex" />;
     if (userRole === "nutritionist") return <Redirect href="/dashboard" />;
     return <Redirect href="/home" />;
   }
