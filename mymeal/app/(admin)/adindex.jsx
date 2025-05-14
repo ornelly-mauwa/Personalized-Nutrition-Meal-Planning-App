@@ -78,7 +78,7 @@ const AdminDashboard = () => {
                 <View style={styles.quickActionsContainer}>
                     <TouchableOpacity
                         style={styles.quickActionCard}
-                        onPress={() => router.push('/admin/users/create')}
+                        onPress={() => router.push('/users/create')}
                     >
                         <View style={styles.quickActionContent}>
                             <Ionicons name="person-add-outline" size={22} color="#3F836E" />

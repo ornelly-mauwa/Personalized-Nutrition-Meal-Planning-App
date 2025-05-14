@@ -10,7 +10,7 @@ const AuthLayout = () => {
   // Redirect to appropriate screen based on user role if logged in
   if (!loading && isLogged) {
     if (userRole === 'admin') {
-      return <Redirect href="/admin-dashboard" />;
+      return <Redirect href="/adindex" />;
     } else if (userRole === 'nutritionist') {
       return <Redirect href="/dashboard" />;
     } else {

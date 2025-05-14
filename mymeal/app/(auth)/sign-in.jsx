@@ -17,7 +17,7 @@ const SignIn = () => {
   const navigateBasedOnRole = (role) => {
     switch (role) {
       case 'admin':
-        router.replace("/admin-dashboard");
+        router.replace("/adindex");
         break;
       case 'nutritionist':
         router.replace("/dashboard");

@@ -116,16 +116,16 @@ const navigationItems = [
   {
     title: 'Dashboard',
     icon: icons.home,
-    path: '/admin'
+    path: '/adindex'
   },
   {
     title: 'Users',
     icon: icons.profile,
-    path: '/admin/users',
+    path: '/users',
     expanded: false,
     children: [
-      { title: 'All Users', path: '/admin/users' },
-      { title: 'Create User', path: '/admin/users/create' }
+      { title: 'All Users', path: '/users/usindex' },
+      { title: 'Create User', path: '/users/create' }
     ]
   },
   {
@@ -134,7 +134,7 @@ const navigationItems = [
     path: '/admin/nutritionists',
     expanded: false,
     children: [
-      { title: 'All Nutritionists', path: '/admin/nutritionists' },
+      { title: 'All Nutritionists', path: '/nutritionists' },
       { title: 'Approval Queue', path: '/admin/nutritionists/approval' }
     ]
   },
@@ -144,9 +144,9 @@ const navigationItems = [
     path: '/admin/settings',
     expanded: false,
     children: [
-      { title: 'General', path: '/admin/settings' },
+      { title: 'General', path: '/settings/index' },
       { title: 'System', path: '/settings/system' }, // Fixed path
-      { title: 'Templates', path: '/admin/settings/templates' },
+      { title: 'Templates', path: '/admin/templates' },
       { title: 'Food Database', path: '/admin/settings/food-database' }
     ]
   }
