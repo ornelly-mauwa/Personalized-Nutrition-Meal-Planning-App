@@ -88,7 +88,7 @@ const AdminDashboard = () => {
 
                     <TouchableOpacity
                         style={styles.quickActionCard}
-                        onPress={() => router.push('/admin/nutritionists/approval')}
+                        onPress={() => router.push('/nutritionists/approval')}
                     >
                         <View style={styles.quickActionContent}>
                             <Ionicons name="checkmark-done-outline" size={22} color="#3F836E" />
@@ -98,7 +98,7 @@ const AdminDashboard = () => {
 
                     <TouchableOpacity
                         style={styles.quickActionCard}
-                        onPress={() => router.push('/system')}
+                        onPress={() => router.push('/settings/system')}
                     >
                         <View style={styles.quickActionContent}>
                             <Ionicons name="settings-outline" size={22} color="#3F836E" />
@@ -108,7 +108,7 @@ const AdminDashboard = () => {
 
                     <TouchableOpacity
                         style={styles.quickActionCard}
-                        onPress={() => router.push('/admin/settings/food-database')}
+                        onPress={() => router.push('/settings/food-database')}
                     >
                         <View style={styles.quickActionContent}>
                             <Ionicons name="restaurant-outline" size={22} color="#3F836E" />

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useFonts } from "expo-font";
 import "react-native-url-polyfill/auto";
 import { SplashScreen, Stack } from "expo-router";
+import { Provider as PaperProvider } from "react-native-paper";
 
 import { GlobalProvider } from "../context/GlobalProvider";
 
@@ -43,15 +44,16 @@ const RootLayout = () => {
   }
 
   return (
-
     <GlobalProvider>
-      <Stack>
-        <Stack.Screen name="(user)" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(admin)" options={{ headerShown: false }} />
-        <Stack.Screen name="(nutritionists)" options={{ headerShown: false }} />
-      </Stack>
+      <PaperProvider>
+        <Stack>
+          <Stack.Screen name="(user)" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="(admin)" options={{ headerShown: false }} />
+          <Stack.Screen name="(nutritionists)" options={{ headerShown: false }} />
+        </Stack>
+      </PaperProvider>
     </GlobalProvider>
   );
 };

@@ -134,7 +134,6 @@ import { StatusBar } from "expo-status-bar";
 import { Redirect, Tabs } from "expo-router";
 import { Text, View } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
-import { Loader } from "../../components";
 import { useGlobalContext } from "../../context/GlobalProvider";
 
 const TabIcon = ({ iconName, color, name, focused }) => {
@@ -185,6 +184,12 @@ export default function TabLayout() {
           },
         }}
       >
+        <Tabs.Screen
+          name="index"
+          options={{
+            href: "/home",
+          }}
+        />
         <Tabs.Screen
           name="home"
           options={{
@@ -258,35 +263,6 @@ export default function TabLayout() {
                 focused={focused}
               />
             ),
-          }}
-        />
-        <Tabs.Screen
-          name="favori"
-          options={{
-            headerShown: false,
-            href: null, // This prevents the route from being navigable via tabs
-          }}
-        />
-        <Tabs.Screen
-          name="store"
-          options={{
-            headerShown: false,
-            href: null, // This prevents the route from being navigable via tabs
-          }}
-        />
-
-        <Tabs.Screen
-          name="meal-detail"
-          options={{
-            headerShown: false,
-            href: null, // This prevents the route from being navigable via tabs
-          }}
-        />
-        <Tabs.Screen
-          name="setting"
-          options={{
-            headerShown: false,
-            href: null, // This prevents the route from being navigable via tabs
           }}
         />
       </Tabs>

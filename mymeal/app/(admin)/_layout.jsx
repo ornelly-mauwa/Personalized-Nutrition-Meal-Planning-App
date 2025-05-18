@@ -131,23 +131,23 @@ const navigationItems = [
   {
     title: 'Nutritionists',
     icon: icons.nutrition || icons.home, // Fallback if nutrition icon doesn't exist
-    path: '/admin/nutritionists',
+    path: '/nutritionists',
     expanded: false,
     children: [
-      { title: 'All Nutritionists', path: '/nutritionists' },
-      { title: 'Approval Queue', path: '/admin/nutritionists/approval' }
+      { title: 'All Nutritionists', path: '/nutritionists/nuindex' },
+      { title: 'Approval Queue', path: '/nutritionists/approval' }
     ]
   },
   {
     title: 'Settings',
     icon: icons.settings || icons.home, // Fallback if settings icon doesn't exist
-    path: '/admin/settings',
+    path: '/settings',
     expanded: false,
     children: [
-      { title: 'General', path: '/settings/index' },
+      { title: 'General', path: '/settings/setindex' },
       { title: 'System', path: '/settings/system' }, // Fixed path
-      { title: 'Templates', path: '/admin/templates' },
-      { title: 'Food Database', path: '/admin/settings/food-database' }
+      { title: 'Templates', path: '/settings/templates' },
+      { title: 'Food Database', path: '/settings/food-database' }
     ]
   }
 ];

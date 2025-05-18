@@ -14,7 +14,7 @@ const UsersLayout = () => {
     ];
 
     const isActive = (route) => {
-        return pathname === route || (route === '/users' && pathname === '/users/index');
+        return pathname === route || (route === '/users' && pathname === '/users/usindex');
     };
 
     return (

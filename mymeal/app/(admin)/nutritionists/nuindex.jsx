@@ -129,7 +129,7 @@ const NutritionistsList = () => {
     const renderNutritionistItem = ({ item }) => {
         return (
             <TouchableOpacity
-                onPress={() => router.push(`/admin/nutritionists/${item.id}`)}
+                onPress={() => router.push(`/nutritionists/${item.id}`)}
                 activeOpacity={0.7}
             >
                 <Card style={styles.nutritionistCard}>
@@ -191,7 +191,7 @@ const NutritionistsList = () => {
                 <Text style={styles.headerTitle}>Nutritionists</Text>
                 <TouchableOpacity
                     style={styles.addButton}
-                    onPress={() => router.push('/admin/nutritionists/create')}
+                    onPress={() => router.push('/nutritionists/create')}
                 >
                     <Ionicons name="add" size={24} color="#FFFFFF" />
                     <Text style={styles.addButtonText}>Add New</Text>
@@ -278,7 +278,7 @@ const NutritionistsList = () => {
                 </Text>
                 <TouchableOpacity
                     style={styles.approvalQueueButton}
-                    onPress={() => router.push('/admin/nutritionists/approval')}
+                    onPress={() => router.push('nutritionists/approval')}
                 >
                     <Text style={styles.approvalQueueButtonText}>Approval Queue</Text>
                     <Badge style={styles.approvalQueueBadge}>3</Badge>
