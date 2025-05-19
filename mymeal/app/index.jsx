@@ -32,7 +32,7 @@ const Welcome = () => {
 
   if (!loading && isLogged && !checkingRole) {
     if (userRole === "admin") return <Redirect href="/adindex" />;
-    if (userRole === "nutritionist") return <Redirect href="/dashboard" />;
+    if (userRole === "nutritionist") return <Redirect href="/nuindex" />;
     return <Redirect href="/home" />;
   }
 

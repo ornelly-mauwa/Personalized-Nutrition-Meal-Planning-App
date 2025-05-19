@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, SafeAreaVi
 import { Card } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useGlobalContext } from "../../context/GlobalProvider";
 
 // Sample data for dashboard metrics
 const metrics = [
@@ -23,6 +24,20 @@ const recentActivities = [
 
 const AdminDashboard = () => {
     const router = useRouter();
+
+    const { handleLogout } = useGlobalContext();
+
+    const onLogout = async () => {
+        try {
+            await handleLogout();
+            // Redirect to welcome/login screen
+            router.replace("/");
+        } catch (error) {
+            console.error("Logout failed:", error);
+            // Optionally show error message to user
+            alert("Failed to logout. Please try again.");
+        }
+    };
 
     return (
 
@@ -113,6 +128,18 @@ const AdminDashboard = () => {
                         <View style={styles.quickActionContent}>
                             <Ionicons name="restaurant-outline" size={22} color="#3F836E" />
                             <Text style={styles.quickActionText}>Manage Foods</Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.quickActionCard}
+                        onPress={() => {
+                            alert('Logging out...');
+                            onLogout();
+                        }}
+                    >
+                        <View style={styles.quickActionContent}>
+                            <Ionicons name="logout-outline" size={22} color="#3F836E" />
+                            <Text style={styles.quickActionText}>logout</Text>
                         </View>
                     </TouchableOpacity>
                 </View>

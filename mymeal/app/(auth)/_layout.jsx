@@ -12,7 +12,7 @@ const AuthLayout = () => {
     if (userRole === 'admin') {
       return <Redirect href="/adindex" />;
     } else if (userRole === 'nutritionist') {
-      return <Redirect href="/dashboard" />;
+      return <Redirect href="/nuindex" />;
     } else {
       // Default for regular users
       return <Redirect href="/home" />;

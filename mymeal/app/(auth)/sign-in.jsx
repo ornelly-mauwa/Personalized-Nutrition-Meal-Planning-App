@@ -20,7 +20,7 @@ const SignIn = () => {
         router.replace("/adindex");
         break;
       case 'nutritionist':
-        router.replace("/dashboard");
+        router.replace("/nuindex");
         break;
       default:
         // Default for regular users

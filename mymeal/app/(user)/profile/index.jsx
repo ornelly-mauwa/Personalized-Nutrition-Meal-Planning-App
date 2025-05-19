@@ -4,6 +4,9 @@ import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useGlobalContext } from "../../../context/GlobalProvider";
+
+
 
 export default function Profile() {
     const userInfo = {
@@ -39,6 +42,21 @@ export default function Profile() {
             </View>
         </TouchableOpacity>
     );
+    const { handleLogout } = useGlobalContext();
+
+    const onLogout = async () => {
+        try {
+            await handleLogout();
+            // Redirect to welcome/login screen
+            router.replace("/");
+        } catch (error) {
+            console.error("Logout failed:", error);
+            // Optionally show error message to user
+            alert("Failed to logout. Please try again.");
+        }
+    };
+    // Logout button component
+
 
     return (
         <SafeAreaView className="flex-1 bg-white">
@@ -153,7 +171,10 @@ export default function Profile() {
                         <MenuItem
                             icon="log-out-outline"
                             title="Log Out"
-                            onPress={() => alert('Logging out...')}
+                            onPress={() => {
+                                alert('Logging out...');
+                                onLogout();
+                            }}
                             hasArrow={false}
                         />
                     </View>
