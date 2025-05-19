@@ -29,14 +29,14 @@ module.exports = (sequelize, DataTypes) => {
             as: 'template_meals'
         });
 
-        // MealType has many plan meals
-        MealType.hasMany(models.PlanMeal, {
+        // MealType has many user meal plans
+        MealType.hasMany(models.UserMealPlan, {
             foreignKey: 'meal_type_id',
-            as: 'plan_meals'
+            as: 'meal_plans'
         });
 
-        // MealType has many user meal logs
-        MealType.hasMany(models.UserMealLog, {
+        // MealType has many meal logs
+        MealType.hasMany(models.MealLog, {
             foreignKey: 'meal_type_id',
             as: 'meal_logs'
         });

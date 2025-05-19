@@ -1,7 +1,13 @@
 // routes/trackingRoutes.js
 const express = require('express');
 const router = express.Router();
-const trackingController = require('../controllers/trackingController');
+const {
+    logMeal,
+    getMealLogs,
+    logWeight,
+    getWeightHistory,
+    getProgressSummary
+} = require('../controllers/trackingController');
 const auth = require('../middleware/auth');
 
 /**
@@ -10,18 +16,18 @@ const auth = require('../middleware/auth');
  */
 
 // Log a meal
-router.post('/meals', auth, trackingController.logMeal);
+router.post('/meals', auth, logMeal);
 
 // Get meal logs
-router.get('/meals', auth, trackingController.getMealLogs);
+router.get('/meals', auth, getMealLogs);
 
 // Log weight
-router.post('/weight', auth, trackingController.logWeight);
+router.post('/weight', auth, logWeight);
 
 // Get weight history
-router.get('/weight', auth, trackingController.getWeightHistory);
+router.get('/weight', auth, getWeightHistory);
 
 // Get progress summary
-router.get('/progress', auth, trackingController.getProgressSummary);
+router.get('/progress', auth, getProgressSummary);
 
 module.exports = router;

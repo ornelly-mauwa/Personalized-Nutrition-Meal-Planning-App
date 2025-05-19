@@ -30,7 +30,7 @@ if (dbConfig.use_env_variable) {
 const User = require('./user')(sequelize, Sequelize.DataTypes);
 const Role = require('./Role')(sequelize, Sequelize.DataTypes);
 const UserHealthProfile = require('./UserHealthProfile')(sequelize, Sequelize.DataTypes);
-const NutritionistProfile = require('./nutritionistProfile')(sequelize, Sequelize.DataTypes);
+const NutritionistProfile = require('./NutritionistProfile')(sequelize, Sequelize.DataTypes);
 const UserAllergy = require('./UserAllergy')(sequelize, Sequelize.DataTypes);
 const FoodItem = require('./FoodItem')(sequelize, Sequelize.DataTypes);
 const MealType = require('./MealType')(sequelize, Sequelize.DataTypes);
@@ -73,7 +73,7 @@ Object.keys(models).forEach(modelName => {
 // User allergies (many-to-many)
 User.belongsToMany(FoodItem, {
   through: UserAllergy,
-  as: 'allergies',
+  as: 'allergicFoods', // Changed from 'allergies' to 'allergicFoods'
   foreignKey: 'user_id',
   otherKey: 'food_item_id'
 });

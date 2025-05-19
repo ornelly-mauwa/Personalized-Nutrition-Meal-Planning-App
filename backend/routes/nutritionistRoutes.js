@@ -1,9 +1,14 @@
 // routes/nutritionistRoutes.js
 const express = require('express');
 const router = express.Router();
-const nutritionistController = require('../controllers/nutritionistController');
+const {
+    getClients,
+    createMealPlanTemplate,
+    createUserMealPlan,
+    getDashboard
+} = require('../controllers/nutritionistController');
 const auth = require('../middleware/auth');
-const roleCheck = require('../middleware/roleCheck');
+const { roleCheck } = require('../middleware/roleCheck');
 
 /**
  * Nutritionist routes for managing clients and creating meal plans
@@ -11,15 +16,15 @@ const roleCheck = require('../middleware/roleCheck');
  */
 
 // Get all clients assigned to nutritionist
-router.get('/clients', auth, roleCheck('nutritionist'), nutritionistController.getClients);
+router.get('/clients', auth, roleCheck('nutritionist'), getClients);
 
 // Create a meal plan template
-router.post('/templates', auth, roleCheck('nutritionist'), nutritionistController.createMealPlanTemplate);
+router.post('/templates', auth, roleCheck('nutritionist'), createMealPlanTemplate);
 
 // Create a meal plan for a user
-router.post('/plans', auth, roleCheck('nutritionist'), nutritionistController.createUserMealPlan);
+router.post('/plans', auth, roleCheck('nutritionist'), createUserMealPlan);
 
 // Get nutritionist dashboard stats
-router.get('/dashboard', auth, roleCheck('nutritionist'), nutritionistController.getDashboard);
+router.get('/dashboard', auth, roleCheck('nutritionist'), getDashboard);
 
 module.exports = router;

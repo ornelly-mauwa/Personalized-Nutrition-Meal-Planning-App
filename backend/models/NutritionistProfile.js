@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     // Associations
-    NutritionistProfile.associate = (models) => {
+    NutritionistProfile.associate = models => {
         // NutritionistProfile belongs to User
         NutritionistProfile.belongsTo(models.User, {
             foreignKey: 'user_id',

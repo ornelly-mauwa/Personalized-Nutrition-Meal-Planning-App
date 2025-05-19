@@ -41,11 +41,14 @@ module.exports = (sequelize, DataTypes) => {
 
     // Associations
     TemplateMeal.associate = (models) => {
-        // TemplateMeal belongs to MealPlanTemplate
+        // Comment out or remove the association with MealPlanTemplate
+        // since it doesn't exist in your models
+        /* 
         TemplateMeal.belongsTo(models.MealPlanTemplate, {
             foreignKey: 'template_id',
             as: 'template'
         });
+        */
 
         // TemplateMeal belongs to MealType
         TemplateMeal.belongsTo(models.MealType, {

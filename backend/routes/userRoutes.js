@@ -1,9 +1,19 @@
 // routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
-const userController = require('../controllers/userController');
+const {
+    getProfile,
+    updateProfile,
+    updateHealthProfile,
+    addAllergies,
+    removeAllergy,
+    getAllergies
+} = require('../controllers/userController');
+const {
+    getMealPlan
+} = require('../controllers/mealPlanController');
 const auth = require('../middleware/auth');
-const roleCheck = require('../middleware/roleCheck');
+const { roleCheck } = require('../middleware/roleCheck');
 
 /**
  * User routes for profile management and user-specific operations
@@ -11,24 +21,24 @@ const roleCheck = require('../middleware/roleCheck');
  */
 
 // Get user profile
-router.get('/profile', auth, userController.getProfile);
+router.get('/profile', auth, getProfile);
 
 // Update user profile
-router.put('/profile', auth, userController.updateProfile);
+router.put('/profile', auth, updateProfile);
 
 // Add allergies
-router.post('/allergies', auth, userController.addAllergies);
+router.post('/allergies', auth, addAllergies);
 
 // Get assigned meal plans
-router.get('/meal-plans', auth, userController.getMealPlans);
+router.get('/meal-plans', auth, getMealPlan);
 
 // Get health profile
-router.get('/health-profile', auth, userController.getHealthProfile);
+//router.get('/health-profile', auth, getHealthProfile);
 
 // Update health profile
-router.put('/health-profile', auth, userController.updateHealthProfile);
+router.put('/health-profile', auth, updateHealthProfile);
 
 // Request nutritionist
-router.post('/request-nutritionist/:nutritionistId', auth, userController.requestNutritionist);
+//router.post('/request-nutritionist/:nutritionistId', auth, requestNutritionist);
 
 module.exports = router;

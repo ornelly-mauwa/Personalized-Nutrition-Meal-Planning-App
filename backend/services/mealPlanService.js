@@ -9,7 +9,7 @@ const {
 } = require('../models');
 const nutritionService = require('./nutritionService');
 const { Op } = require('sequelize');
-const { ApiError } = require('../utils/errors');
+const { ApiError } = require('../middleware/errorHandler');
 
 /**
  * Service for managing meal plans and related functionality
