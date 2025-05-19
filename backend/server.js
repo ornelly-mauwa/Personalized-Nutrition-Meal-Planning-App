@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+/*import dotenv from 'dotenv';
 import Express from "express";
 import bcrypt from "bcrypt";
 import cookiesPaser from "cookie-parser";
@@ -227,4 +227,36 @@ app.post("/api/users/logout", (req, res) => {
 
 // PORT
 const PORT = 8000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));*/
+
+// server.js
+// server.js
+require('dotenv').config();
+const app = require('./app');
+const { sequelize } = require('./models');
+
+const PORT = process.env.PORT || 5000;
+
+async function assertDatabaseConnectionOk() {
+    console.log('Checking database connection...');
+    try {
+        await sequelize.authenticate();
+        console.log('Database connection OK!');
+    } catch (error) {
+        console.log('Unable to connect to the database:');
+        console.log(error.message);
+        process.exit(1);
+    }
+}
+
+async function init() {
+    await assertDatabaseConnectionOk();
+
+    console.log(`Starting Nutrition Management System API on port ${PORT}...`);
+
+    app.listen(PORT, () => {
+        console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+    });
+}
+
+init();
