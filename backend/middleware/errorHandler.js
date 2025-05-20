@@ -1,59 +1,69 @@
-// middleware/errorHandler.js
+/**
+ * Custom API Error class
+ */
+class ApiError extends Error {
+    constructor(statusCode, message, errors = []) {
+        super(message);
+        this.statusCode = statusCode;
+        this.errors = errors;
+        this.name = 'ApiError';
+    }
+}
+
+/**
+ * Error handling middleware
+ */
 const errorHandler = (err, req, res, next) => {
-    let error = { ...err };
-    error.message = err.message;
+    console.error('Error:', err);
 
-    // Log error
-    console.error(err);
-
-    // Sequelize validation error
-    if (err.name === 'SequelizeValidationError') {
-        const message = err.errors.map(e => e.message).join(', ');
-        error = { message, status: 400 };
+    // If it's our custom API error
+    if (err instanceof ApiError) {
+        return res.status(err.statusCode).json({
+            success: false,
+            message: err.message,
+            errors: err.errors,
+        });
     }
 
-    // Sequelize unique constraint error
-    if (err.name === 'SequelizeUniqueConstraintError') {
-        const message = 'Duplicate field value entered';
-        error = { message, status: 400 };
-    }
-
-    // JWT errors
+    // Handle JWT errors
     if (err.name === 'JsonWebTokenError') {
-        const message = 'Invalid token';
-        error = { message, status: 401 };
+        return res.status(401).json({
+            success: false,
+            message: 'Invalid token',
+        });
     }
 
     if (err.name === 'TokenExpiredError') {
-        const message = 'Token expired';
-        error = { message, status: 401 };
+        return res.status(401).json({
+            success: false,
+            message: 'Token expired',
+        });
     }
 
-    // Sequelize database connection error
-    if (err.name === 'SequelizeConnectionError') {
-        const message = 'Database connection error';
-        error = { message, status: 500 };
+    // Sequelize validation errors
+    if (err.name === 'SequelizeValidationError' || err.name === 'SequelizeUniqueConstraintError') {
+        return res.status(400).json({
+            success: false,
+            message: 'Validation error',
+            errors: err.errors.map(e => ({
+                field: e.path,
+                message: e.message
+            })),
+        });
     }
 
-    // Default error
-    if (!error.status) {
-        error.status = 500;
-        error.message = 'Server error';
-    }
+    // Default error handler
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'Internal Server Error';
 
-    res.status(error.status).json({
+    res.status(statusCode).json({
         success: false,
-        message: error.message,
-        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+        message,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
     });
 };
 
-// Async error handler wrapper
-const asyncHandler = (fn) => (req, res, next) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
-};
-
 module.exports = {
+    ApiError,
     errorHandler,
-    asyncHandler
 };

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API, authAPI, userAPI, adminAPI, nutritionistAPI, mealPlanAPI, trackingAPI, foodAPI, utilityAPI } from '../lib/api';
+import { authAPI, userAPI, adminAPI, nutritionistAPI, mealPlanAPI, trackingAPI, foodAPI, utilityAPI } from '../lib/api';
 
 const GlobalContext = createContext({
   // User state

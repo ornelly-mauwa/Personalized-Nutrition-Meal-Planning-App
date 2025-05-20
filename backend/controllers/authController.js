@@ -16,7 +16,7 @@ const register = async (req, res, next) => {
             throw new ApiError(400, 'Validation error', validationErrors);
         }
 
-        const { email, password, firstName, lastName, role = 'user' } = req.body;
+        const { email, password, username, role = 'user' } = req.body;
 
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
@@ -33,8 +33,7 @@ const register = async (req, res, next) => {
         const user = await User.create({
             email,
             passwordHash,
-            firstName,
-            lastName,
+            username,
             roleId: userRole.id
         });
 
@@ -62,8 +61,7 @@ const register = async (req, res, next) => {
             user: {
                 id: user.id,
                 email: user.email,
-                firstName: user.firstName,
-                lastName: user.lastName,
+                userName: user.username, // Changed from userName to username to match the create() call
                 role: userRole.name
             },
             token
@@ -121,8 +119,7 @@ const login = async (req, res, next) => {
             user: {
                 id: user.id,
                 email: user.email,
-                firstName: user.firstName,
-                lastName: user.lastName,
+                userName: user.username, // Changed from userName to username to be consistent
                 role: user.Role.name
             },
             token
@@ -140,8 +137,7 @@ const getCurrentUser = async (req, res, next) => {
             user: {
                 id: user.id,
                 email: user.email,
-                firstName: user.firstName,
-                lastName: user.lastName,
+                userName: user.username, // Changed from userName to username to be consistent
                 role: user.Role.name
             }
         });

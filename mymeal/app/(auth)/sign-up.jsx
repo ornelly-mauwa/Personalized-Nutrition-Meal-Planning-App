@@ -2,12 +2,21 @@ import { useState, useEffect } from "react";
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, ScrollView, Dimensions, Alert, TouchableOpacity } from "react-native";
+import { createClient } from '@supabase/supabase-js'
+
+// Initialisez le client Supabase correctement
+const supabaseUrl = 'https://jygkhetecyfdvyfgxuer.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5Z2toZXRlY3lmZHZ5Zmd4dWVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MDYxOTIsImV4cCI6MjA2MzI4MjE5Mn0.z63Ggm5QwvxXFoosYwdIrYs94JuzM7WFcAAIj3gymi0'
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+
 
 import { CustomButton, FormField } from "../../components";
 import { useGlobalContext } from "../../context/GlobalProvider";
 
 const SignUp = () => {
-  const { SignUp } = useGlobalContext();
+  //const { SignUp } = useGlobalContext();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     username: '',
@@ -74,16 +83,19 @@ const SignUp = () => {
     setIsSubmitting(true);
 
     try {
-      // Register user with role
-      const userData = await SignUp(
-        form.username,
-        form.email,
-        form.password,
-        form.role
-      );
+      // Create a userData object instead of passing individual parameters
+      const userData = {
+        username: form.username,
+        email: form.email,
+        password: form.password,
+        role: form.role
+      };
+
+      // Pass the userData object to SignUp
+      const response = await supabase.auth.signUp(userData);
 
       // Navigate based on user role
-      navigateBasedOnRole(userData.user.role);
+      //navigateBasedOnRole(response.user.role);
 
       Alert.alert('Success', 'Account created successfully!');
     } catch (error) {
@@ -194,17 +206,18 @@ const SignUp = () => {
 
 export default SignUp;
 
+
 /*import React from 'react';
 import { View } from 'react-native';
 import { EndpointDebugger } from '../../components';
 
 const SignUp = () => {
-  return (
-    <View style={{ flex: 1 }}>
+return (
+  <View style={{ flex: 1 }}>
 
-      <EndpointDebugger />
-    </View>
-  );
+    <EndpointDebugger />
+  </View>
+);
 };
 
 export default SignUp;*/

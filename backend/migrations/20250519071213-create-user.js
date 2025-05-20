@@ -15,12 +15,10 @@ module.exports = {
       password_hash: {
         type: Sequelize.STRING
       },
-      first_name: {
+      username: {
         type: Sequelize.STRING
       },
-      last_name: {
-        type: Sequelize.STRING
-      },
+
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

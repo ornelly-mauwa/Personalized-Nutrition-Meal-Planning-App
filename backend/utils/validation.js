@@ -32,18 +32,13 @@ const registerValidation = [
         .withMessage('Password must be at least 6 characters long')
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
         .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number'),
-    body('firstName')
+    body('username')
         .trim()
         .isLength({ min: 2, max: 50 })
         .withMessage('First name must be between 2 and 50 characters')
         .matches(/^[a-zA-Z\s]*$/)
         .withMessage('First name can only contain letters and spaces'),
-    body('lastName')
-        .trim()
-        .isLength({ min: 2, max: 50 })
-        .withMessage('Last name must be between 2 and 50 characters')
-        .matches(/^[a-zA-Z\s]*$/)
-        .withMessage('Last name can only contain letters and spaces'),
+
     body('roleId')
         .isInt({ min: 1 })
         .withMessage('Valid role ID is required')
@@ -393,6 +388,53 @@ const validateOwnership = (resourcePath = 'userId') => {
     };
 };
 
+const validateRegistration = (data) => {
+    const errors = [];
+
+    // Check required fields
+    if (!data.email) {
+        errors.push({ field: 'email', message: 'Email is required' });
+    } else if (!/\S+@\S+\.\S+/.test(data.email)) {
+        errors.push({ field: 'email', message: 'Email is invalid' });
+    }
+
+    if (!data.password) {
+        errors.push({ field: 'password', message: 'Password is required' });
+    } else if (data.password.length < 6) {
+        errors.push({ field: 'password', message: 'Password must be at least 6 characters' });
+    }
+
+    // Since the frontend is sending username but backend needs firstName/lastName
+    // We'll handle that here
+    if (!data.username) {
+        errors.push({ field: 'username', message: 'Username is required' });
+    } else if (data.username.length < 3) {
+        errors.push({ field: 'username', message: 'Username must be at least 3 characters' });
+    }
+
+    // For role validation
+    const validRoles = ['user', 'nutritionist', 'admin'];
+    if (data.role && !validRoles.includes(data.role)) {
+        errors.push({ field: 'role', message: 'Invalid role selected' });
+    }
+
+    return errors;
+};
+
+const validateLogin = (data) => {
+    const errors = [];
+
+    if (!data.email) {
+        errors.push({ field: 'email', message: 'Email is required' });
+    }
+
+    if (!data.password) {
+        errors.push({ field: 'password', message: 'Password is required' });
+    }
+
+    return errors;
+};
+
 module.exports = {
     // Authentication
     registerValidation,
@@ -426,5 +468,6 @@ module.exports = {
     // Custom validators
     validateRole,
     validateOwnership,
-    checkValidationErrors
+    checkValidationErrors,
+    validateRegistration
 };

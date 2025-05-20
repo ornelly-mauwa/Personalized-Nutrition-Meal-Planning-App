@@ -15,7 +15,7 @@ import {
 import { Picker } from '@react-native-picker/picker';
 
 const EndpointDebugger = () => {
-    const [url, setUrl] = useState('http://localhost:3000/api/test');
+    const [url, setUrl] = useState('http://192.168.10.160:8000/api');
     const [method, setMethod] = useState('GET');
     const [headers, setHeaders] = useState('{}');
     const [body, setBody] = useState('');

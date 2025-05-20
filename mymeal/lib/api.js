@@ -1,178 +1,4 @@
-/*// Replace with your dev machine's IP or use localhost if you're using a simulator
-const API_BASE = 'http://192.168.10.160:8000/api';
-
-// Function to make authenticated requests
-const authFetch = async (endpoint, options = {}) => {
-    // Get token from global context
-    const token = global.authToken;
-
-    if (token) {
-        options.headers = {
-            ...options.headers,
-            'Authorization': `Bearer ${token}`
-        };
-    }
-
-    return fetch(`${API_BASE}${endpoint}`, options);
-};
-
-// Auth functions
-export async function SignIn(email, password) {
-    try {
-        console.log(`Attempting login to ${API_BASE}/users/login with email: ${email}`);
-
-        const response = await fetch(`${API_BASE}/users/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            console.error('Login failed with status:', response.status);
-            console.error('Response data:', data);
-            throw new Error(data.message || data.errors?.join(', ') || 'Login failed');
-        }
-
-        console.log('Login successful:', data.user);
-        return data;
-    } catch (error) {
-        console.error('Login error:', error.message);
-        throw error;
-    }
-}
-
-export async function SignUp(username, email, password, role = 'user') {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // Extended to 15 seconds
-
-    try {
-        console.log(`Sending registration to ${API_BASE}/users/register:`, {
-            username,
-            email,
-            role
-        });
-
-        const response = await fetch(`${API_BASE}/users/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, email, password, role }),
-            signal: controller.signal
-        });
-
-        clearTimeout(timeoutId);
-
-        // Try to parse JSON response
-        let data;
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            data = await response.json();
-        } else {
-            const text = await response.text();
-            console.error('Non-JSON response:', text);
-            throw new Error('Server returned non-JSON response');
-        }
-
-        if (!response.ok) {
-            console.error('Registration failed with status:', response.status);
-            console.error('Response data:', data);
-            throw new Error(data.message || data.errors?.join(', ') || 'Registration failed');
-        }
-
-        console.log('Registration successful:', data.user);
-        return data;
-    } catch (error) {
-        clearTimeout(timeoutId);
-
-        if (error.name === 'AbortError') {
-            console.error('Registration request timed out');
-            throw new Error('Request timed out - server may be unreachable');
-        }
-
-        console.error('Registration error:', error);
-        throw error;
-    }
-}
-
-// Add a connection test function that you can call when debugging
-export async function testConnection() {
-    try {
-        console.log(`Testing connection to: ${API_BASE}`);
-        const start = Date.now();
-
-        // Try a simple GET request to your server
-        const response = await fetch(`${API_BASE}/users/me`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                // Include token if available
-                ...(global.authToken ? { 'Authorization': `Bearer ${global.authToken}` } : {})
-            }
-        });
-
-        const time = Date.now() - start;
-        console.log(`Connection response: ${response.status} in ${time}ms`);
-
-        return {
-            success: response.status !== 500,
-            status: response.status,
-            time
-        };
-    } catch (error) {
-        console.error('Connection test failed:', error.message);
-        return {
-            success: false,
-            error: error.message
-        };
-    }
-}
-
-export async function getCurrentUser() {
-    try {
-        const response = await authFetch('/users/me');
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to fetch user data');
-        }
-
-        return response.json();
-    } catch (error) {
-        console.error('Get current user error:', error);
-        throw error;
-    }
-}
-
-export async function getUserRoles() {
-    try {
-        const response = await authFetch('/users/roles');
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to fetch user roles');
-        }
-
-        const data = await response.json();
-        return data.role;
-    } catch (error) {
-        console.error('Get user roles error:', error);
-        throw error;
-    }
-}
-
-export async function logout() {
-    try {
-        const response = await authFetch('/users/logout', {
-            method: 'POST'
-        });
-
-        return response.json();
-    } catch (error) {
-        console.error('Logout error:', error);
-        throw error;
-    }
-} */
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Replace with your dev machine's IP or use localhost if you're using a simulator
 const API_BASE = 'http://192.168.10.160:8000/api';
@@ -187,14 +13,54 @@ class APIError extends Error {
     }
 }
 
+// ==================== TOKEN MANAGEMENT ====================
+const TOKEN_KEY = 'userToken';
+
+export const tokenManager = {
+    async setToken(token) {
+        try {
+            if (token) {
+                await AsyncStorage.setItem(TOKEN_KEY, token);
+                console.log('Token stored successfully');
+            }
+        } catch (error) {
+            console.error('Error storing token:', error);
+        }
+    },
+
+    async getToken() {
+        try {
+            const token = await AsyncStorage.getItem(TOKEN_KEY);
+            return token;
+        } catch (error) {
+            console.error('Error retrieving token:', error);
+            return null;
+        }
+    },
+
+    async removeToken() {
+        try {
+            await AsyncStorage.removeItem(TOKEN_KEY);
+            console.log('Token removed successfully');
+        } catch (error) {
+            console.error('Error removing token:', error);
+        }
+    },
+
+    async hasToken() {
+        const token = await this.getToken();
+        return !!token;
+    }
+};
+
 // Function to make authenticated requests with better error handling
 const authFetch = async (endpoint, options = {}) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
     try {
-        // Get token from global context
-        const token = global.authToken;
+        // Get token from AsyncStorage instead of global
+        const token = await tokenManager.getToken();
 
         const defaultHeaders = {
             'Content-Type': 'application/json',
@@ -211,6 +77,7 @@ const authFetch = async (endpoint, options = {}) => {
         };
 
         console.log(`API Request: ${config.method || 'GET'} ${API_BASE}${endpoint}`);
+        console.log(`Token included: ${token ? 'Yes' : 'No'}`);
 
         const response = await fetch(`${API_BASE}${endpoint}`, config);
         clearTimeout(timeoutId);
@@ -226,6 +93,13 @@ const authFetch = async (endpoint, options = {}) => {
 
         if (!response.ok) {
             console.error(`API Error ${response.status}:`, data);
+
+            // If unauthorized, clear the stored token
+            if (response.status === 401) {
+                console.log('Unauthorized - clearing stored token');
+                await tokenManager.removeToken();
+            }
+
             throw new APIError(
                 data.message || data.errors?.join(', ') || `Request failed with status ${response.status}`,
                 response.status,
@@ -259,6 +133,15 @@ export const authAPI = {
                 method: 'POST',
                 body: JSON.stringify({ email, password })
             });
+
+            // Store the token after successful login
+            if (data.token) {
+                await tokenManager.setToken(data.token);
+                console.log('Login successful and token stored');
+            } else {
+                console.warn('Login successful but no token received');
+            }
+
             console.log('Login successful:', data.user);
             return data;
         } catch (error) {
@@ -274,6 +157,13 @@ export const authAPI = {
                 method: 'POST',
                 body: JSON.stringify(userData)
             });
+
+            // Store the token after successful registration
+            if (data.token) {
+                await tokenManager.setToken(data.token);
+                console.log('Registration successful and token stored');
+            }
+
             console.log('Registration successful:', data.user);
             return data;
         } catch (error) {
@@ -284,6 +174,11 @@ export const authAPI = {
 
     async getCurrentUser() {
         try {
+            const hasToken = await tokenManager.hasToken();
+            if (!hasToken) {
+                throw new APIError('No authentication token found', 401);
+            }
+
             const data = await authFetch('/auth/me');
             return data;
         } catch (error) {
@@ -294,10 +189,22 @@ export const authAPI = {
 
     async logout() {
         try {
-            await authFetch('/auth/logout', { method: 'POST' });
+            // Try to call logout endpoint
+            try {
+                await authFetch('/auth/logout', { method: 'POST' });
+            } catch (error) {
+                // Even if logout API fails, we still want to clear the local token
+                console.warn('Logout API call failed:', error.message);
+            }
+
+            // Always clear the stored token
+            await tokenManager.removeToken();
+            console.log('Logout completed - token cleared');
             return true;
         } catch (error) {
             console.error('Logout error:', error);
+            // Still clear token on error
+            await tokenManager.removeToken();
             throw error;
         }
     }
@@ -630,11 +537,12 @@ export const utilityAPI = {
             console.log(`Testing connection to: ${API_BASE}`);
             const start = Date.now();
 
+            const token = await tokenManager.getToken();
             const response = await fetch(`${API_BASE}/auth/me`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    ...(global.authToken ? { 'Authorization': `Bearer ${global.authToken}` } : {})
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
                 }
             });
 
@@ -662,7 +570,7 @@ export const utilityAPI = {
         formData.append('file', file);
 
         try {
-            const token = global.authToken;
+            const token = await tokenManager.getToken();
             const response = await fetch(`${API_BASE}${endpoint}`, {
                 method: 'POST',
                 headers: {
@@ -681,6 +589,37 @@ export const utilityAPI = {
             console.error('File upload error:', error);
             throw error;
         }
+    }
+};
+
+// ==================== DEBUG FUNCTIONS ====================
+export const debugAPI = {
+    async checkAuth() {
+        console.log('=== Auth Debug ===');
+        const hasToken = await tokenManager.hasToken();
+        const token = await tokenManager.getToken();
+
+        console.log('Has token:', hasToken);
+        console.log('Token value:', token ? token.substring(0, 20) + '...' : 'null');
+
+        if (token) {
+            try {
+                const user = await authAPI.getCurrentUser();
+                console.log('Token is valid, user:', user);
+                return { valid: true, user };
+            } catch (error) {
+                console.log('Token is invalid:', error.message);
+                return { valid: false, error: error.message };
+            }
+        } else {
+            console.log('No token found');
+            return { valid: false, error: 'No token' };
+        }
+    },
+
+    async clearAuth() {
+        await tokenManager.removeToken();
+        console.log('Auth cleared');
     }
 };
 
@@ -711,7 +650,7 @@ export async function testConnection() {
 }
 
 // Export all APIs as a single object for easier imports
-export const API = {
+const API = {
     auth: authAPI,
     user: userAPI,
     admin: adminAPI,
@@ -719,7 +658,8 @@ export const API = {
     mealPlan: mealPlanAPI,
     tracking: trackingAPI,
     food: foodAPI,
-    utility: utilityAPI
+    utility: utilityAPI,
+    debug: debugAPI
 };
 
 export default API;
