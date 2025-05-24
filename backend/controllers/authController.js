@@ -1,296 +1,47 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { User, Role, NutritionistProfile } = require('../models');
-const { ApiError } = require('../middleware/errorHandler');
-const { validateRegistration, validateLogin } = require('../utils/validation');
-const config = require('../config/config');
 
-/**
- * Authentication controller handling user registration, login, and profile retrieval
- */
+import User from '../models/userModel.js'; // ✅ Default import
+import userSchema from "../middleware/validator.js";
+import doHash from "../utils/hashing.js"; // if applicable
 
-const register = async (req, res, next) => {
+
+export const signup = async (req, res) => {
+    const { username, email, password, role } = req.body;
     try {
-        const validationErrors = validateRegistration(req.body);
-        if (validationErrors.length > 0) {
-            throw new ApiError(400, 'Validation error', validationErrors);
-        }
-
-        const { email, password, username, role = 'user' } = req.body;
-
-        const existingUser = await User.findOne({ where: { email } });
-        if (existingUser) {
-            throw new ApiError(400, 'Email already registered');
-        }
-
-        const userRole = await Role.findOne({ where: { name: role } });
-        if (!userRole) {
-            throw new ApiError(400, 'Invalid role specified');
-        }
-
-        const passwordHash = await bcrypt.hash(password, 10);
-
-        const user = await User.create({
-            email,
-            passwordHash,
+        const { error, value } = userSchema.validate({
             username,
-            roleId: userRole.id
+            email,
+            password,
+            role
         });
 
-        if (role === 'nutritionist') {
-            await NutritionistProfile.create({
-                userId: user.id,
-                specialization: req.body.specialization || '',
-                bio: req.body.bio || '',
-                approved: false
-            });
+
+        if (error) {
+            return res.status(401).json({ message: error.details[0].message })
         }
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(401).json({ success: false, message: 'User already exists' });
+        }
+        const hashedPassword = await doHash(password, 12);
 
-        const token = jwt.sign(
-            {
-                userId: user.id,
-                email: user.email,
-                role: userRole.name
-            },
-            config.jwtSecret,
-            { expiresIn: config.jwtExpiresIn }
-        );
-
-        res.status(201).json({
-            message: 'User registered successfully',
-            user: {
-                id: user.id,
-                email: user.email,
-                userName: user.username, // Changed from userName to username to match the create() call
-                role: userRole.name
-            },
-            token
+        const newUser = new User({
+            username,
+            email,
+            password: hashedPassword,
+            role
         });
+
+        const result = await newUser.save();
+        result.password = undefined; // Remove password from response for security
+
+        res.status(201).json({ success: true, message: 'Your account has been created successfully', user: result });
+
+        return res.status(201).json({ success: true, message: 'User created successfully', result, });
     } catch (error) {
-        next(error);
+        console.error('Error during signup:', error);
+        return res.status(500).json({ message: 'Server error' });
     }
-}
 
-const login = async (req, res, next) => {
-    try {
-        const validationErrors = validateLogin(req.body);
-        if (validationErrors.length > 0) {
-            throw new ApiError(400, 'Validation error', validationErrors);
-        }
 
-        const { email, password } = req.body;
 
-        const user = await User.findOne({
-            where: { email },
-            include: [{ model: Role }]
-        });
-
-        if (!user) {
-            throw new ApiError(401, 'Invalid email or password');
-        }
-
-        const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
-        if (!isPasswordValid) {
-            throw new ApiError(401, 'Invalid email or password');
-        }
-
-        if (user.Role.name === 'nutritionist') {
-            const nutritionistProfile = await NutritionistProfile.findOne({
-                where: { userId: user.id }
-            });
-
-            if (nutritionistProfile && !nutritionistProfile.approved) {
-                throw new ApiError(403, 'Your nutritionist account is pending approval');
-            }
-        }
-
-        const token = jwt.sign(
-            {
-                userId: user.id,
-                email: user.email,
-                role: user.Role.name
-            },
-            config.jwtSecret,
-            { expiresIn: config.jwtExpiresIn }
-        );
-
-        res.status(200).json({
-            message: 'Login successful',
-            user: {
-                id: user.id,
-                email: user.email,
-                userName: user.username, // Changed from userName to username to be consistent
-                role: user.Role.name
-            },
-            token
-        });
-    } catch (error) {
-        next(error);
-    }
-}
-
-const getCurrentUser = async (req, res, next) => {
-    try {
-        const { user } = req;
-
-        res.status(200).json({
-            user: {
-                id: user.id,
-                email: user.email,
-                userName: user.username, // Changed from userName to username to be consistent
-                role: user.Role.name
-            }
-        });
-    } catch (error) {
-        next(error);
-    }
-}
-
-const logout = async (req, res, next) => {
-    try {
-        // Since JWT is stateless, a true logout happens on the client side
-        // by removing the token, but we can handle any server-side cleanup here
-
-        res.status(200).json({
-            message: 'Logged out successfully'
-        });
-    } catch (error) {
-        next(error);
-    }
-}
-
-const refreshToken = async (req, res, next) => {
-    try {
-        const { user } = req;
-
-        const token = jwt.sign(
-            {
-                userId: user.id,
-                email: user.email,
-                role: user.Role.name
-            },
-            config.jwtSecret,
-            { expiresIn: config.jwtExpiresIn }
-        );
-
-        res.status(200).json({
-            message: 'Token refreshed',
-            token
-        });
-    } catch (error) {
-        next(error);
-    }
-}
-
-const forgotPassword = async (req, res, next) => {
-    try {
-        const { email } = req.body;
-
-        if (!email) {
-            throw new ApiError(400, 'Email is required');
-        }
-
-        const user = await User.findOne({ where: { email } });
-        if (!user) {
-            // Don't reveal whether a user exists for security reasons
-            return res.status(200).json({
-                message: 'If your email is registered, you will receive password reset instructions'
-            });
-        }
-
-        // Generate a password reset token
-        const resetToken = jwt.sign(
-            { userId: user.id },
-            config.jwtSecret,
-            { expiresIn: '1h' }
-        );
-
-        // In a real application, you would send an email with the reset link
-        // For now, we'll just return the token in the response
-        // NOTE: In production, you should NEVER return the token in the response
-
-        res.status(200).json({
-            message: 'If your email is registered, you will receive password reset instructions',
-            // For development only - remove in production
-            resetToken
-        });
-    } catch (error) {
-        next(error);
-    }
-}
-
-const resetPassword = async (req, res, next) => {
-    try {
-        const { token, newPassword } = req.body;
-
-        if (!token || !newPassword) {
-            throw new ApiError(400, 'Token and new password are required');
-        }
-
-        if (newPassword.length < 8) {
-            throw new ApiError(400, 'New password must be at least 8 characters');
-        }
-
-        let decoded;
-        try {
-            decoded = jwt.verify(token, config.jwtSecret);
-        } catch (error) {
-            throw new ApiError(401, 'Invalid or expired token');
-        }
-
-        const user = await User.findByPk(decoded.userId);
-        if (!user) {
-            throw new ApiError(404, 'User not found');
-        }
-
-        const passwordHash = await bcrypt.hash(newPassword, 10);
-        await user.update({ passwordHash });
-
-        res.status(200).json({
-            message: 'Password has been reset successfully'
-        });
-    } catch (error) {
-        next(error);
-    }
-}
-
-const changePassword = async (req, res, next) => {
-    try {
-        const { currentPassword, newPassword } = req.body;
-        const { user } = req;
-
-        if (!currentPassword || !newPassword) {
-            throw new ApiError(400, 'Current password and new password are required');
-        }
-
-        if (newPassword.length < 8) {
-            throw new ApiError(400, 'New password must be at least 8 characters');
-        }
-
-        const isPasswordValid = await bcrypt.compare(currentPassword, user.passwordHash);
-        if (!isPasswordValid) {
-            throw new ApiError(401, 'Current password is incorrect');
-        }
-
-        const passwordHash = await bcrypt.hash(newPassword, 10);
-
-        await user.update({ passwordHash });
-
-        res.status(200).json({
-            message: 'Password changed successfully'
-        });
-    } catch (error) {
-        next(error);
-    }
-}
-
-module.exports = {
-    register,
-    login,
-    getCurrentUser,
-    logout,
-    refreshToken,
-    forgotPassword,
-    resetPassword,
-    changePassword
 };

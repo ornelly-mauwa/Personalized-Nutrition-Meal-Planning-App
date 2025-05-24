@@ -1,33 +1,25 @@
-// config/db.js
-const { sequelize } = require('../models');
+// db.js
+import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
 
-const connectDB = async () => {
+dotenv.config();
+
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    logging: false,
+    dialectOptions: {
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    },
+});
+
+export const connectToDb = async () => {
     try {
         await sequelize.authenticate();
-        console.log('Database connection established successfully.');
-
-        // Sync all models with database
-        if (process.env.NODE_ENV === 'development') {
-            await sequelize.sync({ alter: true });
-            console.log('Database synchronized successfully.');
-        }
+        console.log('✅ Connected to PostgreSQL via Sequelize');
     } catch (error) {
-        console.error('Unable to connect to the database:', error);
+        console.error('❌ Sequelize connection error:', error.message);
         process.exit(1);
     }
 };
 
-const closeDB = async () => {
-    try {
-        await sequelize.close();
-        console.log('Database connection closed.');
-    } catch (error) {
-        console.error('Error closing database connection:', error);
-    }
-};
-
-module.exports = {
-    connectDB,
-    closeDB,
-    sequelize
-};
+export default sequelize;

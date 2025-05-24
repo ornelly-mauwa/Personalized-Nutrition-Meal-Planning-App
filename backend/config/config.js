@@ -1,83 +1,45 @@
-/*// config/config.js
-require('dotenv').config();
+// db.js
+import pkg from 'pg';
+import dotenv from 'dotenv';
 
-module.exports = {
-  development: {
-    username: '',
-    password: "M@uwa123!@#",
-    database: process.env.DB_NAME || 'nutrition_db',
-    host: process.env.DB_HOST || '127.0.0.1',
-    port: process.env.DB_PORT || 5432,
-    dialect: 'postgres',
-    logging: console.log
-  },
-  test: {
-    username: process.env.DB_USER || 'postgres',
-    password: "M@uwa123!@#",
-    database: process.env.DB_NAME || 'nutrition_test_db',
-    host: process.env.DB_HOST || '127.0.0.1',
-    port: process.env.DB_PORT || 5432,
-    dialect: 'postgres',
-    logging: false
-  },
-  production: {
-    username: process.env.DB_USER,
-    password: "M@uwa123!@#",
-    database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT || 5432,
-    dialect: 'postgres',
-    logging: false,
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
-    }
-  }
-};*/
+dotenv.config();
 
-// config/config.js
-require('dotenv').config();
+const { Pool } = pkg;
 
-module.exports = {
-  development: {
-    username: 'root',
-    password: "M@uwa123!@#",
-    database: 'nutrition_db',
-    host: 'localhost',
-    port: 3306,
-    dialect: 'mysql',
-    logging: console.log
-  },
-  test: {
-    username: process.env.DB_USER || 'root',
-    password: "M@uwa123!@#",
-    database: process.env.DB_NAME || 'nutrition_test_db',
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 3306,
-    dialect: 'mysql',
-    logging: false
-  },
-  production: {
-    username: process.env.DB_USER,
-    password: "M@uwa123!@#",
-    database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT || 3306,
-    dialect: 'mysql',
-    logging: false,
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
-    },
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000
-    }
+// Create PostgreSQL connection pool
+const pool = new Pool({
+  host: 'localhost',
+  user: 'postgres', // Replace with your PostgreSQL username
+  password: 'yourpassword', // Replace with your password
+  database: 'mymeal', // PostgreSQL database name
+  port: 5432,
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+});
+
+// Initialize the database (create tables)
+export const initDb = async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) NOT NULL,
+        email VARCHAR(100) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        role VARCHAR(20) CHECK (role IN ('user', 'admin', 'nutritionist')) DEFAULT 'user',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    console.log('PostgreSQL database initialized successfully');
+  } catch (error) {
+    console.error('Database initialization error:', error);
+    throw error;
   }
 };
+
+// Initialize when app starts
+initDb().catch(console.error);
+
+export default pool;
