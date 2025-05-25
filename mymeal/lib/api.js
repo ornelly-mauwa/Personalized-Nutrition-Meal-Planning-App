@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+/*import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Replace with your dev machine's IP or use localhost if you're using a simulator
 const API_BASE = 'http://192.168.10.160:8000/api';
@@ -662,4 +662,4 @@ const API = {
     debug: debugAPI
 };
 
-export default API;
+export default API;*/

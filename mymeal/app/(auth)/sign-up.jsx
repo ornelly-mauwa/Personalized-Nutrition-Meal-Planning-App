@@ -1,21 +1,16 @@
-import { useState, useEffect } from "react";
+/*import { useState, useEffect } from "react";
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, ScrollView, Dimensions, Alert, TouchableOpacity } from "react-native";
 import { createClient } from '@supabase/supabase-js'
 
 // Initialisez le client Supabase correctement
-const supabaseUrl = 'https://jygkhetecyfdvyfgxuer.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5Z2toZXRlY3lmZHZ5Zmd4dWVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MDYxOTIsImV4cCI6MjA2MzI4MjE5Mn0.z63Ggm5QwvxXFoosYwdIrYs94JuzM7WFcAAIj3gymi0'
-const supabase = createClient(supabaseUrl, supabaseKey)
-
-
 
 import { CustomButton, FormField } from "../../components";
 import { useGlobalContext } from "../../context/GlobalProvider";
 
 const SignUp = () => {
-  //const { SignUp } = useGlobalContext();
+  const { SignUp } = useGlobalContext();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -60,19 +55,7 @@ const SignUp = () => {
     setIsFormValid(Object.keys(errors).length === 0);
   };
 
-  /*const navigateBasedOnRole = (role) => {
-    switch (role) {
-      case 'admin':
-        router.replace("/(admin)/dashboard");
-        break;
-      case 'nutritionist':
-        router.replace("/(nutritionists)/dashboard");
-        break;
-      default:
-        // Default for regular users
-        router.replace("/(tabs)/home");
-    }
-  };*/
+ 
 
   const handleSubmit = async () => {
     if (!isFormValid) {
@@ -83,22 +66,22 @@ const SignUp = () => {
     setIsSubmitting(true);
 
     try {
-      // Create a userData object instead of passing individual parameters
-      const userData = {
-        username: form.username,
-        email: form.email,
-        password: form.password,
-        role: form.role
-      };
+      // Call SignUp with the form data directly since it matches the expected structure
+      const response = await SignUp(form);
 
-      // Pass the userData object to SignUp
-      const response = await supabase.auth.signUp(userData);
+      if (response.success) {
+        // Get the role from user metadata instead
+        const userRole = response.user?.user_metadata?.role || 'user';
 
-      // Navigate based on user role
-      //navigateBasedOnRole(response.user.role);
+        // Navigate based on user role
+        navigateBasedOnRole(userRole);
 
-      Alert.alert('Success', 'Account created successfully!');
+        Alert.alert('Success', response.message || 'Account created successfully!');
+      } else {
+        throw new Error(response.error || 'Registration failed');
+      }
     } catch (error) {
+      console.error("Signup failed:", error.message);
       Alert.alert('Error', error.message || 'Registration failed');
     } finally {
       setIsSubmitting(false);
@@ -207,7 +190,7 @@ const SignUp = () => {
 export default SignUp;
 
 
-/*import React from 'react';
+import React from 'react';
 import { View } from 'react-native';
 import { EndpointDebugger } from '../../components';
 
@@ -221,3 +204,87 @@ return (
 };
 
 export default SignUp;*/
+
+import React, { useState } from 'react'
+import { Alert, StyleSheet, View } from 'react-native'
+import { supabase } from '../../lib/supabase'
+import { Button, Input } from '@rneui/themed'
+
+export default function Auth() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function signInWithEmail() {
+    setLoading(true)
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    })
+
+    if (error) Alert.alert(error.message)
+    setLoading(false)
+  }
+
+  async function signUpWithEmail() {
+    setLoading(true)
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+    })
+
+    if (error) Alert.alert(error.message)
+    if (!session) Alert.alert('Please check your inbox for email verification!')
+    setLoading(false)
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={[styles.verticallySpaced, styles.mt20]}>
+        <Input
+          label="Email"
+          leftIcon={{ type: 'font-awesome', name: 'envelope' }}
+          onChangeText={(text) => setEmail(text)}
+          value={email}
+          placeholder="email@address.com"
+          autoCapitalize={'none'}
+        />
+      </View>
+      <View style={styles.verticallySpaced}>
+        <Input
+          label="Password"
+          leftIcon={{ type: 'font-awesome', name: 'lock' }}
+          onChangeText={(text) => setPassword(text)}
+          value={password}
+          secureTextEntry={true}
+          placeholder="Password"
+          autoCapitalize={'none'}
+        />
+      </View>
+      <View style={[styles.verticallySpaced, styles.mt20]}>
+        <Button title="Sign in" disabled={loading} onPress={() => signInWithEmail()} />
+      </View>
+      <View style={styles.verticallySpaced}>
+        <Button title="Sign up" disabled={loading} onPress={() => signUpWithEmail()} />
+      </View>
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  container: {
+    marginTop: 40,
+    padding: 12,
+  },
+  verticallySpaced: {
+    paddingTop: 4,
+    paddingBottom: 4,
+    alignSelf: 'stretch',
+  },
+  mt20: {
+    marginTop: 20,
+  },
+})
