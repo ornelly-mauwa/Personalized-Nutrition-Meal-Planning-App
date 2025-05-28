@@ -1,4 +1,4 @@
-/*import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Replace with your dev machine's IP or use localhost if you're using a simulator
 const API_BASE = 'http://192.168.10.160:8000/api';
@@ -129,7 +129,7 @@ export const authAPI = {
     async signIn(email, password) {
         try {
             console.log(`Attempting login with email: ${email}`);
-            const data = await authFetch('/auth/login', {
+            const data = await authFetch('/auth/signin', {
                 method: 'POST',
                 body: JSON.stringify({ email, password })
             });
@@ -153,7 +153,7 @@ export const authAPI = {
     async signUp(userData) {
         try {
             console.log('Attempting registration:', { ...userData, password: '[HIDDEN]' });
-            const data = await authFetch('/auth/register', {
+            const data = await authFetch('/auth/signup', {
                 method: 'POST',
                 body: JSON.stringify(userData)
             });
@@ -179,7 +179,7 @@ export const authAPI = {
                 throw new APIError('No authentication token found', 401);
             }
 
-            const data = await authFetch('/auth/me');
+            const data = await authFetch('/auth/getCurrentUser'); // ✅ correct route now
             return data;
         } catch (error) {
             console.error('Get current user error:', error);
@@ -187,11 +187,12 @@ export const authAPI = {
         }
     },
 
+
     async logout() {
         try {
             // Try to call logout endpoint
             try {
-                await authFetch('/auth/logout', { method: 'POST' });
+                await authFetch('/auth/signout', { method: 'POST' });
             } catch (error) {
                 // Even if logout API fails, we still want to clear the local token
                 console.warn('Logout API call failed:', error.message);
@@ -662,4 +663,4 @@ const API = {
     debug: debugAPI
 };
 
-export default API;*/
+export default API;

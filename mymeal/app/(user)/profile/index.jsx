@@ -42,11 +42,11 @@ export default function Profile() {
             </View>
         </TouchableOpacity>
     );
-    const { handleLogout } = useGlobalContext();
+    const { logout } = useGlobalContext();
 
     const onLogout = async () => {
         try {
-            await handleLogout();
+            await logout();
             // Redirect to welcome/login screen
             router.replace("/");
         } catch (error) {

@@ -1,13 +1,11 @@
-/*import { useEffect } from "react";
+import { useEffect } from "react";
 import { useFonts } from "expo-font";
 import "react-native-url-polyfill/auto";
 import { SplashScreen, Stack } from "expo-router";
 import { Provider as PaperProvider } from "react-native-paper";
 
-import { supabase } from '../lib/supabase';
-import Auth from './auth/sign-up';
-import { Session } from '@supabase/supabase-js'
-//import { GlobalProvider } from "../context/GlobalProvider";
+
+import { GlobalProvider } from "../context/GlobalProvider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -45,7 +43,7 @@ const RootLayout = () => {
   if (!fontsLoaded && !error) {
     return null;
   }
- 
+
   return (
     <GlobalProvider>
       <PaperProvider>
@@ -61,32 +59,4 @@ const RootLayout = () => {
   );
 };
 
-export default RootLayout;*/
-import 'react-native-url-polyfill/auto'
-import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
-import Auth from './(auth)/sign-up'
-import { View, Text } from 'react-native'
-import { Session } from '@supabase/supabase-js'
-
-export default function App() {
-  const [session, setSession] = useState < Session | null > (null)
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-    })
-
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
-
-  }, [])
-
-  return (
-    <View>
-      <Auth />
-      {session && session.user && <Text>{session.user.id}</Text>}
-    </View>
-  )
-}
+export default RootLayout;

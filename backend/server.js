@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import sequelize from './config/db.js';
 import { connectToDb } from './config/db.js';
-import { initDb } from './config/database.js';
+
 
 import authRouter from './routers/authRoutes.js';
 

@@ -19,7 +19,7 @@ import { useGlobalContext } from "../../context/GlobalProvider";
 
 const Profile = () => {
 
-    const { user, loading, updateUser, handleLogout } = useGlobalContext();
+    const { user, loading, updateUser, logout } = useGlobalContext();
     const [isEditing, setIsEditing] = useState(false);
     const [profileData, setProfileData] = useState({
         firstName: "",
@@ -43,7 +43,7 @@ const Profile = () => {
 
     const onLogout = async () => {
         try {
-            await handleLogout();
+            await logout();
             // Redirect to welcome/login screen
             router.replace("/");
         } catch (error) {

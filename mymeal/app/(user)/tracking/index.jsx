@@ -137,7 +137,7 @@ export default function TrackingScreen() {
                 <View className="mx-5 mt-4 p-5 bg-slate-50 rounded-2xl">
                     <View className="flex-row justify-between items-center mb-3">
                         <Text className="text-slate-800 text-lg font-kbold">Daily Summary</Text>
-                        <Text className="text-slate-600 text-base">
+                        <Text className="text-slate-600 text-base flex-1">
                             {todayStats.calories.consumed} / {todayStats.calories.goal} kcal
                         </Text>
                     </View>
@@ -153,11 +153,11 @@ export default function TrackingScreen() {
                     {/* Macronutrients */}
                     <View className="flex-row justify-between">
                         {/* Protein */}
-                        <View className="flex-1 mr-2">
+                        <View className="flex-1 mr-2 padding-1">
                             <View className="flex-row justify-between mb-1">
-                                <Text className="text-slate-700 font-kmedium text-sm">Protein</Text>
+                                <Text className="text-slate-700 font-kmedium text-sm">rotein</Text>
                                 <Text className="text-slate-700 text-sm">
-                                    {todayStats.protein.consumed}g / {todayStats.protein.goal}g
+                                    {todayStats.protein.consumed}g/{todayStats.protein.goal}g
                                 </Text>
                             </View>
                             <View className="h-2 bg-slate-200 rounded-full overflow-hidden">

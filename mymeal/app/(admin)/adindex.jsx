@@ -25,11 +25,11 @@ const recentActivities = [
 const AdminDashboard = () => {
     const router = useRouter();
 
-    const { handleLogout } = useGlobalContext();
+    const { logout } = useGlobalContext();
 
     const onLogout = async () => {
         try {
-            await handleLogout();
+            await logout();
             // Redirect to welcome/login screen
             router.replace("/");
         } catch (error) {
@@ -138,7 +138,7 @@ const AdminDashboard = () => {
                         }}
                     >
                         <View style={styles.quickActionContent}>
-                            <Ionicons name="logout-outline" size={22} color="#3F836E" />
+                            <Ionicons name="log-out-outline" size={22} color="#3F836E" />
                             <Text style={styles.quickActionText}>logout</Text>
                         </View>
                     </TouchableOpacity>
