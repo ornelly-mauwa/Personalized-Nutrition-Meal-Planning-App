@@ -1,204 +1,62 @@
 // controllers/adminController.js
-const { User, Role, NutritionistProfile, UserMealPlan } = require('../models');
-const { validateRoleUpdate, validateNutritionistApproval } = require('../utils/validation');
-const { Op } = require('sequelize');
-const { sequelize } = require('../models');
-/**
- * Controller for admin-specific operations
- */
-//const auth = async (req, res, next)
-/**
- * Get all users in the system
- */
-const getAllUsers = async (req, res) => {
+import User from '../models/userModel.js';
+
+export const getAllUsers = async (req, res) => {
     try {
         const users = await User.findAll({
-            include: [
-                {
-                    model: Role,
-                    attributes: ['name']
-                }
-            ],
-            attributes: { exclude: ['password_hash'] } // Exclude sensitive information
+            attributes: ['id', 'name', 'email', 'role', 'isApproved'],
         });
-
-        return res.json(users);
-    } catch (error) {
-        console.error('Error getting all users:', error);
-        return res.status(500).json({ message: 'Failed to retrieve users' });
+        res.json(users);
+    } catch (err) {
+        console.error('Error fetching users:', err);
+        res.status(500).json({ error: 'Failed to fetch users' });
     }
-}
-
-/**
- * Update a user's role
- */
-const updateUserRole = async (req, res) => {
-    try {
-        const { error } = validateRoleUpdate(req.body);
-        if (error) {
-            return res.status(400).json({ message: error.details[0].message });
-        }
-
-        const userId = req.params.id;
-        const { roleId } = req.body;
-
-        // Validate that the user exists
-        const user = await User.findByPk(userId);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Validate that the role exists
-        const role = await Role.findByPk(roleId);
-        if (!role) {
-            return res.status(404).json({ message: 'Role not found' });
-        }
-
-        // Update the user's role
-        await user.update({ roleId });
-
-        return res.json({
-            message: 'User role updated successfully',
-            user: {
-                id: user.id,
-                email: user.email,
-                role: role.name
-            }
-        });
-    } catch (error) {
-        console.error('Error updating user role:', error);
-        return res.status(500).json({ message: 'Failed to update user role' });
-    }
-}
-
-/**
- * Approve a nutritionist account
- */
-const approveNutritionist = async (req, res) => {
-    try {
-        const { error } = validateNutritionistApproval(req.body);
-        if (error) {
-            return res.status(400).json({ message: error.details[0].message });
-        }
-
-        const nutritionistId = req.params.id;
-        const { approved } = req.body;
-
-        // Find the nutritionist profile
-        const nutritionistProfile = await NutritionistProfile.findOne({
-            where: { userId: nutritionistId },
-            include: [User]
-        });
-
-        if (!nutritionistProfile) {
-            return res.status(404).json({ message: 'Nutritionist profile not found' });
-        }
-
-        // Update approval status
-        await nutritionistProfile.update({ isApproved: approved });
-
-        // If approving, make sure the user has the nutritionist role
-        if (approved) {
-            const nutritionistRole = await Role.findOne({
-                where: { name: 'nutritionist' }
-            });
-
-            if (nutritionistRole) {
-                await nutritionistProfile.User.update({ roleId: nutritionistRole.id });
-            }
-        }
-
-        return res.json({
-            message: `Nutritionist ${approved ? 'approved' : 'disapproved'} successfully`,
-            nutritionist: {
-                id: nutritionistProfile.userId,
-                name: `${nutritionistProfile.User.firstName} ${nutritionistProfile.User.lastName}`,
-                isApproved: nutritionistProfile.isApproved
-            }
-        });
-    } catch (error) {
-        console.error('Error approving nutritionist:', error);
-        return res.status(500).json({ message: 'Failed to update nutritionist approval status' });
-    }
-}
-
-/**
- * Get admin dashboard statistics
- */
-const getDashboard = async (req, res) => {
-    try {
-        // Count total users
-        const userCount = await User.count();
-
-        // Count users by role
-        const usersByRole = await User.findAll({
-            attributes: ['roleId', [sequelize.fn('COUNT', sequelize.col('id')), 'count']],
-            include: [
-                {
-                    model: Role,
-                    attributes: ['name']
-                }
-            ],
-            group: ['roleId', 'Role.id', 'Role.name']
-        });
-
-        // Count pending nutritionist approvals
-        const pendingApprovals = await NutritionistProfile.count({
-            where: { isApproved: false }
-        });
-
-        // Count active meal plans
-        const activeMealPlans = await UserMealPlan.count({
-            where: {
-                endDate: {
-                    [Op.gte]: new Date()
-                }
-            }
-        });
-
-        // Get recent registrations (last 10)
-        const recentRegistrations = await User.findAll({
-            attributes: ['id', 'firstName', 'lastName', 'email', 'createdAt'],
-            include: [
-                {
-                    model: Role,
-                    attributes: ['name']
-                }
-            ],
-            order: [['createdAt', 'DESC']],
-            limit: 10
-        });
-
-        // Get pending nutritionist approvals
-        const pendingNutritionists = await NutritionistProfile.findAll({
-            where: { isApproved: false },
-            include: [
-                {
-                    model: User,
-                    attributes: ['id', 'firstName', 'lastName', 'email', 'createdAt']
-                }
-            ],
-            order: [['createdAt', 'ASC']]
-        });
-
-        return res.json({
-            userCount,
-            usersByRole,
-            pendingApprovals,
-            activeMealPlans,
-            recentRegistrations,
-            pendingNutritionists
-        });
-    } catch (error) {
-        console.error('Error getting admin dashboard:', error);
-        return res.status(500).json({ message: 'Failed to retrieve dashboard data' });
-    }
-}
-
-
-module.exports = {
-    getAllUsers,
-    updateUserRole,
-    approveNutritionist,
-    getDashboard
 };
+
+export const deleteUser = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const user = await User.findByPk(id);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        await user.destroy();
+        res.json({ message: "User deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        res.status(500).json({ error: "Failed to delete user" });
+    }
+};
+// controllers/adminController.js
+export const approveNutritionist = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const user = await User.findByPk(id);
+        if (!user || user.role !== 'nutritionist') {
+            return res.status(404).json({ error: "Nutritionist not found" });
+        }
+
+        user.isApproved = true; // or user.status = 'approved'
+        await user.save();
+
+        res.json({ message: "Nutritionist approved", user });
+    } catch (error) {
+        console.error("Error approving nutritionist:", error);
+        res.status(500).json({ error: "Failed to approve nutritionist" });
+    }
+};
+export const rejectNutritionist = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const user = await User.findByPk(id);
+        if (!user || user.role !== 'nutritionist') {
+            return res.status(404).json({ error: "Nutritionist not found" });
+        }
+        user.isApproved = false; // or user.status = 'rejected'
+        await user.save();
+        res.json({ message: "Nutritionist rejected", user });
+    } catch (error) {
+        console.error("Error rejecting nutritionist:", error);
+        res.status(500).json({ error: "Failed to reject nutritionist" });
+    }
+};  

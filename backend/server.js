@@ -8,8 +8,14 @@ import sequelize from './config/db.js';
 import { connectToDb } from './config/db.js';
 
 
-import authRouter from './routers/authRoutes.js';
-
+import authRouter from './routers/adminRoutes.js';
+import mealPlanRoutes from './routers/mealPlanRoutes.js';
+import mealLogRoutes from './routers/mealLogRoutes.js';
+import weightLogRoutes from './routers/weightLogRoutes.js';
+import adminRoutes from './routers/adminRoutes.js';
+import trackingRoutes from './routers/trackingRoutes.js';
+import profileRoutes from './routers/profileRoutes.js';
+import mealSuggestionRoutes from './routers/mealsuggRoutes.js';
 const PORT = process.env.PORT || 8000;
 
 const app = express();
@@ -20,7 +26,13 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/auth', authRouter);
-
+app.use('/api/meal-plans', mealPlanRoutes);
+app.use('/api/meal-logs', mealLogRoutes);
+app.use('/api/weight-logs', weightLogRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/tracking', trackingRoutes);
+app.use('/api/profiles', profileRoutes);
+app.use('/api/suggestions', mealSuggestionRoutes);
 app.get('/', (req, res) => {
     res.json('Hello World from server');
 
