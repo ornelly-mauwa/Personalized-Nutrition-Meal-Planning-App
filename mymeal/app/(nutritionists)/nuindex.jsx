@@ -10,7 +10,7 @@ import { useGlobalContext } from "../../context/GlobalProvider";
 
 const Dashboard = () => {
     const router = useRouter();
-    const { user, loading } = useGlobalContext();
+    const { user, loading, mealPlans } = useGlobalContext();
     const [stats, setStats] = useState({
         totalClients: 24,
         activeMealPlans: 18,
@@ -54,7 +54,7 @@ const Dashboard = () => {
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>
-                    Welcome back, {user?.firstName || "Nutritionist"}
+                    Welcome back, {user?.username || "Nutritionist"}
                 </Text>
                 <Text style={styles.headerSubtitle}>
                     {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}

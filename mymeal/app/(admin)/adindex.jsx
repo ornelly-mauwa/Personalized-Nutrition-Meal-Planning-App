@@ -7,10 +7,7 @@ import { useGlobalContext } from "../../context/GlobalProvider";
 
 // Sample data for dashboard metrics
 const metrics = [
-    { title: 'Total Users', value: '4,289', icon: 'people', color: '#3F836E' },
-    { title: 'Nutritionists', value: '142', icon: 'medkit', color: '#3F836E' },
-    { title: 'Approval Queue', value: '7', icon: 'checkmark-circle', color: '#3F836E' },
-    { title: 'Active Plans', value: '1,894', icon: 'calendar', color: '#3F836E' },
+
 ];
 
 // Sample data for recent activities
@@ -25,7 +22,7 @@ const recentActivities = [
 const AdminDashboard = () => {
     const router = useRouter();
 
-    const { logout } = useGlobalContext();
+    const { logout, user } = useGlobalContext();
 
     const onLogout = async () => {
         try {
@@ -43,15 +40,16 @@ const AdminDashboard = () => {
 
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>Dashboard</Text>
-                <Text style={styles.headerSubtitle}>Welcome to the admin panel</Text>
+                <Text style={styles.headerTitle}> Admin Dashboard</Text>
+                <Text style={styles.headerSubtitle}>Welcome back, {user?.username || "Admin"}
+                </Text>
             </View>
 
             {/* Metrics Cards */}
             <View style={styles.metricsContainer}>
                 {metrics.map((metric, index) => (
                     <Card key={index} style={styles.metricCard}>
-                        <Card.Content style={styles.metricContent}>
+                        <Card.Content style={styles.user}>
                             <View style={[styles.iconContainer, { backgroundColor: metric.color + '20' }]}>
                                 <Ionicons name={metric.icon} size={24} color={metric.color} />
                             </View>

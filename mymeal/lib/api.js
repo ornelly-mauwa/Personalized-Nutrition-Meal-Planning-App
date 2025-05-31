@@ -14,7 +14,7 @@ class APIError extends Error {
 }
 
 // ==================== TOKEN MANAGEMENT ====================
-const TOKEN_KEY = 'userToken';
+const TOKEN_KEY = 'authToken';
 
 export const tokenManager = {
     async setToken(token) {
@@ -213,55 +213,188 @@ export const authAPI = {
 
 // ==================== USER API ====================
 export const userAPI = {
+    async createProfile(profileData) {
+        try {
+            const response = await authFetch('/profiles', {
+                method: 'POST',
+                body: JSON.stringify(profileData)
+            });
+
+            // Handle token if returned from backend
+            if (response.token) {
+                await tokenManager.setToken(response.token);
+                console.log('Token stored after profile creation');
+            }
+
+            return response;
+        } catch (error) {
+            console.error('Profile creation failed:', error);
+            throw error;
+        }
+    },
+
     async getProfile() {
-        return await authFetch('/user/profile');
+        try {
+            // Fix: Remove body from GET request (GET requests shouldn't have body)
+            const response = await authFetch('/profiles', {
+                method: 'GET'
+            });
+
+            // Handle token refresh if returned
+            if (response.token) {
+                await tokenManager.setToken(response.token);
+            }
+
+            return response;
+        } catch (error) {
+            console.error('Get profile failed:', error);
+            throw error;
+        }
     },
 
     async updateProfile(profileData) {
-        return await authFetch('/user/profile', {
-            method: 'PUT',
-            body: JSON.stringify(profileData)
-        });
+        try {
+            const response = await authFetch('/profiles', {
+                method: 'PUT',
+                body: JSON.stringify(profileData)
+            });
+
+            // Handle token refresh if returned
+            if (response.token) {
+                await tokenManager.setToken(response.token);
+            }
+
+            return response;
+        } catch (error) {
+            console.error('Profile update failed:', error);
+            throw error;
+        }
     },
 
-    async addAllergies(allergies) {
-        return await authFetch('/user/allergies', {
-            method: 'POST',
-            body: JSON.stringify({ allergies })
-        });
+    async deleteProfile(profileId) {
+        try {
+            const response = await authFetch('/profiles', {
+                method: 'DELETE',
+                body: JSON.stringify({ profileId })
+            });
+
+            return response;
+        } catch (error) {
+            console.error('Profile deletion failed:', error);
+            throw error;
+        }
+    },
+
+    /*async addAllergies(allergies) {
+        try {
+            const response = await authFetch('/user/allergies', {
+                method: 'POST',
+                body: JSON.stringify({ allergies })
+            });
+
+            return response;
+        } catch (error) {
+            console.error('Add allergies failed:', error);
+            throw error;
+        }
     },
 
     async getUserAllergies() {
-        return await authFetch('/user/allergies');
+        try {
+            const response = await authFetch('/user/allergies');
+            return response;
+        } catch (error) {
+            console.error('Get allergies failed:', error);
+            throw error;
+        }
     },
 
     async removeAllergy(allergyId) {
-        return await authFetch(`/user/allergies/${allergyId}`, {
-            method: 'DELETE'
-        });
+        try {
+            const response = await authFetch(`/user/allergies/${allergyId}`, {
+                method: 'DELETE'
+            });
+
+            return response;
+        } catch (error) {
+            console.error('Remove allergy failed:', error);
+            throw error;
+        }
     },
 
-    async getMealPlans() {
-        return await authFetch('/user/meal-plans');
+    async createMealPlan(mealPlanData) {
+        try {
+            const response = await authFetch('/meal-plans', {
+                method: 'POST',
+                body: JSON.stringify(mealPlanData)
+            });
+
+            return response;
+        } catch (error) {
+            console.error('Create meal plan failed:', error);
+            throw error;
+        }
+    },
+
+    async getMealPlans(userId) {
+        try {
+            // Fix: Added userId parameter and proper template literal
+            const response = await authFetch(`/meal-plans/${userId}`, {
+                method: 'GET'
+            });
+
+            return response;
+        } catch (error) {
+            console.error('Get meal plans failed:', error);
+            throw error;
+        }
     },
 
     async getHealthProfile() {
-        return await authFetch('/user/health-profile');
+        try {
+            const response = await authFetch('/user/health-profile');
+            return response;
+        } catch (error) {
+            console.error('Get health profile failed:', error);
+            throw error;
+        }
     },
 
     async updateHealthProfile(healthData) {
-        return await authFetch('/user/health-profile', {
-            method: 'PUT',
-            body: JSON.stringify(healthData)
-        });
-    }
+        try {
+            const response = await authFetch('/user/health-profile', {
+                method: 'PUT',
+                body: JSON.stringify(healthData)
+            });
+
+            // Handle token refresh if returned
+            if (response.token) {
+                await tokenManager.setToken(response.token);
+            }
+
+            return response;
+        } catch (error) {
+            console.error('Update health profile failed:', error);
+            throw error;
+        }
+    }*/
+};
+
+// Helper function to check token status (for debugging)
+export const debugTokenStatus = async () => {
+    const hasToken = await tokenManager.hasToken();
+    const token = await tokenManager.getToken();
+
+    console.log('=== TOKEN DEBUG ===');
+    console.log('Has token:', hasToken);
+    console.log('Token present:', !!token);
+    console.log('Token length:', token ? token.length : 0);
+
+    return { hasToken, token };
 };
 
 // ==================== ADMIN API ====================
 export const adminAPI = {
-    async getDashboard() {
-        return await authFetch('/admin/dashboard');
-    },
 
     async getUsers(page = 1, limit = 10, search = '') {
         const params = new URLSearchParams({ page, limit, search });
@@ -273,20 +406,20 @@ export const adminAPI = {
     },
 
     async updateUserRole(userId, role) {
-        return await authFetch(`/admin/users/${userId}/role`, {
+        return await authFetch(`/admin/users/${userId}`, {
             method: 'PUT',
             body: JSON.stringify({ role })
         });
     },
 
     async approveNutritionist(nutritionistId) {
-        return await authFetch(`/admin/nutritionists/${nutritionistId}/approve`, {
+        return await authFetch(`/admin/approve-nutritionist/${nutritionistId}`, {
             method: 'PUT'
         });
     },
 
     async rejectNutritionist(nutritionistId, reason) {
-        return await authFetch(`/admin/nutritionists/${nutritionistId}/reject`, {
+        return await authFetch(`/admin/reject-nutritionist/${nutritionistId}`, {
             method: 'PUT',
             body: JSON.stringify({ reason })
         });
@@ -309,9 +442,6 @@ export const adminAPI = {
 
 // ==================== NUTRITIONIST API ====================
 export const nutritionistAPI = {
-    async getDashboard() {
-        return await authFetch('/nutritionist/dashboard');
-    },
 
     async getClients() {
         return await authFetch('/nutritionist/clients');
@@ -346,14 +476,16 @@ export const nutritionistAPI = {
     },
 
     async createMealPlan(mealPlanData) {
-        return await authFetch('/nutritionist/plans', {
+        return await authFetch('/meal-plans', {
             method: 'POST',
             body: JSON.stringify(mealPlanData)
         });
     },
 
     async getMealPlans() {
-        return await authFetch('/nutritionist/plans');
+        return await authFetch(`/meal-plans/${userId}`, {
+            method: 'GET'
+        });
     },
 
     async assignMealPlan(userId, mealPlanId) {
@@ -420,7 +552,7 @@ export const mealPlanAPI = {
 // ==================== TRACKING API ====================
 export const trackingAPI = {
     async logMeal(mealData) {
-        return await authFetch('/tracking/meals', {
+        return await authFetch('/meal-logs', {
             method: 'POST',
             body: JSON.stringify(mealData)
         });
@@ -431,24 +563,24 @@ export const trackingAPI = {
         if (startDate) params.append('startDate', startDate);
         if (endDate) params.append('endDate', endDate);
 
-        return await authFetch(`/tracking/meals?${params}`);
+        return await authFetch(`/meal-logs/weelky?${params}`);
     },
 
     async updateMealLog(logId, mealData) {
-        return await authFetch(`/tracking/meals/${logId}`, {
+        return await authFetch(`/meal-logs/${logId}`, {
             method: 'PUT',
             body: JSON.stringify(mealData)
         });
     },
 
     async deleteMealLog(logId) {
-        return await authFetch(`/tracking/meals/${logId}`, {
+        return await authFetch(`/meal-logs/${logId}`, {
             method: 'DELETE'
         });
     },
 
     async logWeight(weight, date = new Date()) {
-        return await authFetch('/tracking/weight', {
+        return await authFetch('/weight-logs', {
             method: 'POST',
             body: JSON.stringify({ weight, date })
         });

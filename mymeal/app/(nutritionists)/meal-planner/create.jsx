@@ -42,6 +42,8 @@ const MealPlanCreate = () => {
     // Plan metadata
     const [planTitle, setPlanTitle] = useState('');
     const [selectedClient, setSelectedClient] = useState(null);
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
     const [selectedDuration, setSelectedDuration] = useState(7); // days
     const [planNotes, setPlanNotes] = useState('');
     const [isTemplate, setIsTemplate] = useState(false);
@@ -54,19 +56,21 @@ const MealPlanCreate = () => {
     const [currentMealIndex, setCurrentMealIndex] = useState(0);
     const [currentDayIndex, setCurrentDayIndex] = useState(0);
 
-    // Plan structure
+    // Plan structure - adapted for Sequelize models
     const [mealPlan, setMealPlan] = useState([
-        // Day 1 is initialized by default
         {
-            day: 1,
+            dayOfWeek: 'Monday',
             meals: [
-                { name: 'Breakfast', foods: [] },
-                { name: 'Lunch', foods: [] },
-                { name: 'Dinner', foods: [] },
-                { name: 'Snack', foods: [] },
+                { mealType: 'breakfast', name: '', calories: 0, protein: 0, carbs: 0, fats: 0, foods: [] },
+                { mealType: 'lunch', name: '', calories: 0, protein: 0, carbs: 0, fats: 0, foods: [] },
+                { mealType: 'dinner', name: '', calories: 0, protein: 0, carbs: 0, fats: 0, foods: [] },
+                { mealType: 'snacks', name: '', calories: 0, protein: 0, carbs: 0, fats: 0, foods: [] },
             ]
         }
     ]);
+
+    // Days of week for meal plan
+    const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
     // Generate empty days based on selected duration
     useEffect(() => {
@@ -78,18 +82,28 @@ const MealPlanCreate = () => {
 
             // Create new day
             return {
-                day: index + 1,
+                dayOfWeek: daysOfWeek[index % 7],
                 meals: [
-                    { name: 'Breakfast', foods: [] },
-                    { name: 'Lunch', foods: [] },
-                    { name: 'Dinner', foods: [] },
-                    { name: 'Snack', foods: [] },
+                    { mealType: 'breakfast', name: '', calories: 0, protein: 0, carbs: 0, fats: 0, foods: [] },
+                    { mealType: 'lunch', name: '', calories: 0, protein: 0, carbs: 0, fats: 0, foods: [] },
+                    { mealType: 'dinner', name: '', calories: 0, protein: 0, carbs: 0, fats: 0, foods: [] },
+                    { mealType: 'snacks', name: '', calories: 0, protein: 0, carbs: 0, fats: 0, foods: [] },
                 ]
             };
         });
 
         setMealPlan(newMealPlan);
     }, [selectedDuration]);
+
+    // Set end date based on start date and duration
+    useEffect(() => {
+        if (startDate && selectedDuration) {
+            const start = new Date(startDate);
+            const end = new Date(start);
+            end.setDate(start.getDate() + selectedDuration - 1);
+            setEndDate(end.toISOString().split('T')[0]);
+        }
+    }, [startDate, selectedDuration]);
 
     // Filter foods based on search and category
     const filteredFoods = FOOD_DATABASE.filter(food => {
@@ -116,18 +130,45 @@ const MealPlanCreate = () => {
         return calculateMealNutrition(allFoods);
     };
 
-    // Add food to a specific meal
+    // Add food to a specific meal and update meal totals
     const addFoodToMeal = (food) => {
         const updatedMealPlan = [...mealPlan];
-        updatedMealPlan[currentDayIndex].meals[currentMealIndex].foods.push(food);
+        const currentMeal = updatedMealPlan[currentDayIndex].meals[currentMealIndex];
+
+        // Add food to the foods array
+        currentMeal.foods.push(food);
+
+        // Update meal totals
+        const mealNutrition = calculateMealNutrition(currentMeal.foods);
+        currentMeal.calories = mealNutrition.calories;
+        currentMeal.protein = mealNutrition.protein;
+        currentMeal.carbs = mealNutrition.carbs;
+        currentMeal.fats = mealNutrition.fat;
+
+        // Generate meal name if empty
+        if (!currentMeal.name) {
+            currentMeal.name = `${currentMeal.mealType.charAt(0).toUpperCase() + currentMeal.mealType.slice(1)} - ${updatedMealPlan[currentDayIndex].dayOfWeek}`;
+        }
+
         setMealPlan(updatedMealPlan);
         setShowFoodSelector(false);
     };
 
-    // Remove food from a meal
+    // Remove food from a meal and update totals
     const removeFood = (dayIndex, mealIndex, foodIndex) => {
         const updatedMealPlan = [...mealPlan];
-        updatedMealPlan[dayIndex].meals[mealIndex].foods.splice(foodIndex, 1);
+        const currentMeal = updatedMealPlan[dayIndex].meals[mealIndex];
+
+        // Remove food
+        currentMeal.foods.splice(foodIndex, 1);
+
+        // Update meal totals
+        const mealNutrition = calculateMealNutrition(currentMeal.foods);
+        currentMeal.calories = mealNutrition.calories;
+        currentMeal.protein = mealNutrition.protein;
+        currentMeal.carbs = mealNutrition.carbs;
+        currentMeal.fats = mealNutrition.fat;
+
         setMealPlan(updatedMealPlan);
     };
 
@@ -144,6 +185,37 @@ const MealPlanCreate = () => {
         setShowClientSelector(false);
     };
 
+    // Prepare data for Sequelize models
+    const prepareMealPlanData = () => {
+        // MealPlan data
+        const mealPlanData = {
+            startDate: startDate,
+            endDate: endDate,
+            // Add client relationship if needed
+            ...(selectedClient && { clientId: selectedClient.id })
+        };
+
+        // Meals data
+        const mealsData = [];
+        mealPlan.forEach(day => {
+            day.meals.forEach(meal => {
+                if (meal.foods.length > 0) { // Only save meals with foods
+                    mealsData.push({
+                        dayOfWeek: day.dayOfWeek,
+                        mealType: meal.mealType,
+                        name: meal.name || `${meal.mealType.charAt(0).toUpperCase() + meal.mealType.slice(1)} - ${day.dayOfWeek}`,
+                        calories: meal.calories,
+                        protein: meal.protein,
+                        carbs: meal.carbs,
+                        fats: meal.fats,
+                    });
+                }
+            });
+        });
+
+        return { mealPlanData, mealsData };
+    };
+
     // Handle plan saving
     const saveMealPlan = () => {
         // Validate required fields
@@ -152,13 +224,38 @@ const MealPlanCreate = () => {
             return;
         }
 
+        if (!startDate) {
+            Alert.alert('Missing Information', 'Please provide a start date for the meal plan.');
+            return;
+        }
+
         if (!selectedClient && !isTemplate) {
             Alert.alert('Missing Information', 'Please select a client for this meal plan.');
             return;
         }
 
-        // Save logic would go here
+        // Check if at least one meal has foods
+        const hasAnyMeals = mealPlan.some(day =>
+            day.meals.some(meal => meal.foods.length > 0)
+        );
+
+        if (!hasAnyMeals) {
+            Alert.alert('Missing Information', 'Please add at least one meal to the plan.');
+            return;
+        }
+
         setSaving(true);
+
+        // Prepare data for backend
+        const { mealPlanData, mealsData } = prepareMealPlanData();
+
+        console.log('MealPlan Data:', mealPlanData);
+        console.log('Meals Data:', mealsData);
+
+        // Here you would make API calls to create the meal plan and meals
+        // Example:
+        // 1. Create MealPlan record
+        // 2. Create Meal records with mealPlanId foreign key
 
         // Simulate API call
         setTimeout(() => {
@@ -177,7 +274,7 @@ const MealPlanCreate = () => {
     const renderDay = (day, index) => (
         <View style={styles.dayContainer} key={`day-${index}`}>
             <View style={styles.dayHeader}>
-                <Text style={styles.dayTitle}>Day {day.day}</Text>
+                <Text style={styles.dayTitle}>{day.dayOfWeek}</Text>
                 <View style={styles.nutritionSummary}>
                     <Text style={styles.summaryText}>
                         Calories: {calculateDayNutrition(day).calories} |
@@ -190,7 +287,9 @@ const MealPlanCreate = () => {
 
             {day.meals.map((meal, mealIndex) => (
                 <View key={`meal-${index}-${mealIndex}`} style={styles.mealContainer}>
-                    <Text style={styles.mealTitle}>{meal.name}</Text>
+                    <Text style={styles.mealTitle}>
+                        {meal.mealType.charAt(0).toUpperCase() + meal.mealType.slice(1)}
+                    </Text>
 
                     {meal.foods.length > 0 ? (
                         <>
@@ -211,7 +310,7 @@ const MealPlanCreate = () => {
 
                             <View style={styles.mealNutrition}>
                                 <Text style={styles.mealNutritionText}>
-                                    Total: {calculateMealNutrition(meal.foods).calories} calories
+                                    Total: {meal.calories} calories | P: {meal.protein}g | C: {meal.carbs}g | F: {meal.fats}g
                                 </Text>
                             </View>
                         </>
@@ -262,6 +361,26 @@ const MealPlanCreate = () => {
                             value={planTitle}
                             onChangeText={setPlanTitle}
                             placeholder="Enter plan title"
+                        />
+                    </View>
+
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.inputLabel}>Start Date</Text>
+                        <TextInput
+                            style={styles.textInput}
+                            value={startDate}
+                            onChangeText={setStartDate}
+                            placeholder="YYYY-MM-DD"
+                        />
+                    </View>
+
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.inputLabel}>End Date</Text>
+                        <TextInput
+                            style={[styles.textInput, { backgroundColor: '#F7FAFC' }]}
+                            value={endDate}
+                            editable={false}
+                            placeholder="Auto-calculated"
                         />
                     </View>
 
@@ -448,8 +567,10 @@ const MealPlanCreate = () => {
             )}
         </View>
     );
+
 };
 
+// Complete StyleSheet for the MealPlanCreate component
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -661,34 +782,46 @@ const styles = StyleSheet.create({
         marginLeft: 8,
     },
     mealNutrition: {
-        marginTop: 4,
-        marginBottom: 8,
+        backgroundColor: '#EDF2F7',
+        padding: 8,
+        borderRadius: 6,
+        marginTop: 8,
     },
     mealNutritionText: {
-        fontSize: 13,
+        fontSize: 12,
         color: '#4A5568',
         fontWeight: '500',
-        fontFamily: 'kregular',
-        fontStyle: 'italic',
+        fontFamily: 'kbold',
     },
     emptyMealText: {
         fontSize: 14,
         color: '#A0AEC0',
         fontStyle: 'italic',
-        marginBottom: 8,
+        textAlign: 'center',
+        paddingVertical: 12,
         fontFamily: 'kregular',
     },
     addFoodButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 8,
+        justifyContent: 'center',
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        backgroundColor: '#f0faf8',
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: '#3F836E',
+        borderStyle: 'dashed',
+        marginTop: 8,
     },
     addFoodText: {
         fontSize: 14,
         color: '#3F836E',
-        marginLeft: 4,
-        fontFamily: 'kregular',
+        marginLeft: 6,
+        fontWeight: '500',
+        fontFamily: 'kbold',
     },
+    // Modal styles
     modalOverlay: {
         position: 'absolute',
         top: 0,
@@ -703,16 +836,20 @@ const styles = StyleSheet.create({
     modal: {
         backgroundColor: '#FFFFFF',
         borderRadius: 12,
-        width: '90%',
+        margin: 20,
         maxHeight: '80%',
-        padding: 16,
+        width: '90%',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
     },
     modalHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 16,
-        paddingBottom: 12,
+        padding: 16,
         borderBottomWidth: 1,
         borderBottomColor: '#E2E8F0',
     },
@@ -722,81 +859,88 @@ const styles = StyleSheet.create({
         color: '#1A202C',
         fontFamily: 'kbold',
     },
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#E2E8F0',
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        marginBottom: 12,
-    },
-    searchInput: {
-        flex: 1,
-        padding: 10,
-        fontSize: 16,
-        fontFamily: 'kregular',
-    },
-    categoryFilter: {
-        flexDirection: 'row',
-        marginBottom: 12,
-        flexWrap: 'wrap',
-    },
-    categoryOption: {
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-        borderRadius: 20,
-        backgroundColor: '#F7FAFC',
-        marginRight: 8,
-        marginBottom: 8,
-    },
-    selectedCategory: {
-        backgroundColor: '#9dcfc1',
-    },
-    categoryText: {
-        fontSize: 14,
-        color: '#4A5568',
-        fontFamily: 'kregular',
-    },
-    selectedCategoryText: {
-        color: '#FFFFFF',
-        fontWeight: '500',
-        fontFamily: 'kbold',
-    },
+    // Client selector modal styles
     clientItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 8,
+        padding: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#E2E8F0',
+        borderBottomColor: '#F7FAFC',
     },
     clientName: {
         fontSize: 16,
-        color: '#1A202C',
         fontWeight: '500',
+        color: '#1A202C',
         fontFamily: 'kbold',
     },
     clientDetails: {
         fontSize: 14,
         color: '#718096',
-        marginTop: 4,
+        marginTop: 2,
         fontFamily: 'kregular',
+    },
+    // Food selector modal styles
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E2E8F0',
+        backgroundColor: '#F7FAFC',
+    },
+    searchInput: {
+        flex: 1,
+        marginLeft: 8,
+        fontSize: 16,
+        color: '#1A202C',
+        fontFamily: 'kregular',
+    },
+    categoryFilter: {
+        flexDirection: 'row',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E2E8F0',
+        backgroundColor: '#FFFFFF',
+    },
+    categoryOption: {
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 16,
+        backgroundColor: '#F7FAFC',
+        marginRight: 8,
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+    },
+    selectedCategory: {
+        backgroundColor: '#f0faf8',
+        borderColor: '#3F836E',
+    },
+    categoryText: {
+        fontSize: 12,
+        color: '#4A5568',
+        fontWeight: '500',
+        fontFamily: 'kregular',
+    },
+    selectedCategoryText: {
+        color: '#3F836E',
+        fontFamily: 'kbold',
     },
     foodSelectorItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 8,
+        padding: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#E2E8F0',
+        borderBottomColor: '#F7FAFC',
     },
     foodSelectorName: {
         fontSize: 16,
+        fontWeight: '500',
         color: '#1A202C',
-        fontFamily: 'kregular',
+        fontFamily: 'kbold',
     },
     foodSelectorNutrition: {
         fontSize: 14,
@@ -805,10 +949,10 @@ const styles = StyleSheet.create({
         fontFamily: 'kregular',
     },
     emptyResultsText: {
+        textAlign: 'center',
         fontSize: 16,
         color: '#A0AEC0',
-        textAlign: 'center',
-        padding: 20,
+        paddingVertical: 32,
         fontFamily: 'kregular',
         fontStyle: 'italic',
     },

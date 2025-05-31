@@ -2,12 +2,12 @@ import { useState } from "react";
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, ScrollView, Dimensions, Alert } from "react-native";
-
+import { tokenManager } from "../../lib/api";
 import { CustomButton, FormField } from "../../components";
 import { useGlobalContext } from "../../context/GlobalProvider";
 
 const SignIn = () => {
-  const { SignIn, userRole } = useGlobalContext();
+  const { SignIn } = useGlobalContext();
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     email: "",
@@ -39,7 +39,11 @@ const SignIn = () => {
     try {
       // Login and get user data with role
       const userData = await SignIn(form.email, form.password);
+      const { token, user } = response.data;
 
+      // Use tokenManager instead of direct AsyncStorage
+      await tokenManager.setToken(token); // ✅ Use tokenManager
+      await AsyncStorage.setItem('user', JSON.stringify(user));
       // Navigate based on user role
       navigateBasedOnRole(userData.user.role);
 

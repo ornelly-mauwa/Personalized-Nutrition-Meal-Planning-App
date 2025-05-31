@@ -8,7 +8,7 @@ import sequelize from './config/db.js';
 import { connectToDb } from './config/db.js';
 
 
-import authRouter from './routers/adminRoutes.js';
+import authRouter from './routers/authRoutes.js';
 import mealPlanRoutes from './routers/mealPlanRoutes.js';
 import mealLogRoutes from './routers/mealLogRoutes.js';
 import weightLogRoutes from './routers/weightLogRoutes.js';

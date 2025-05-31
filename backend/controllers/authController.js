@@ -1,4 +1,5 @@
-
+import dotenv from 'dotenv';
+dotenv.config();
 import User from '../models/userModel.js'; // ✅ Default import
 import { userSchema, signinSchema } from "../middleware/validator.js";
 import { doHash, doHashValidation } from "../utils/hashing.js"; // if applicable
@@ -71,7 +72,7 @@ export const signin = async (req, res) => {
             email: existingUser.email,
             role: existingUser.role,
             verified: existingUser.verified,
-        }, process.env.TOKEN_SECRET);
+        }, process.env.JWT_SECRET);
 
         // Re-fetch user without password for response
         const fullUser = await User.findOne({
@@ -105,7 +106,7 @@ export const getCurrentUser = async (req, res) => {
             return res.status(401).json({ message: 'No token provided' });
         }
 
-        const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         console.log('Decoded token:', decoded); // ✅ Add this
 
         const user = await User.findOne({

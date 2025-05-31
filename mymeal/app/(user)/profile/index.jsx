@@ -1,24 +1,26 @@
-
+//profile/index.jsx
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useGlobalContext } from "../../../context/GlobalProvider";
-
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 
 export default function Profile() {
+    const { user } = useGlobalContext();
     const userInfo = {
-        name: 'Sarah Johnson',
-        email: 'sarah.j@example.com',
-        joinDate: 'May 2025',
+        name: user?.username,
+        email: user?.email,
+        joinDate: user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A',
         profilePic: 'https://placehold.co/400x400',
-        height: '5\'7"',
-        weight: '163 lbs',
-        goal: 'Weight Loss',
-        targetWeight: '160 lbs',
-        streak: 14,
+        height: user?.height || '5\'8', // Assuming these values are available in the user profile
+        weight: user?.weight || '170 lbs',// Assuming these values are available in the user profile
+        goal: user?.goals || 'Lose Weight',
+        targetCalories: user?.goalCalories || '2000 kcal',
+
+
     };
 
     const MenuItem = ({ icon, title, onPress, showBadge = false, hasArrow = true }) => (
@@ -125,16 +127,7 @@ export default function Profile() {
                             title="Personal Information"
                             onPress={() => router.push('/profile/personal-info')}
                         />
-                        <MenuItem
-                            icon="barbell-outline"
-                            title="Fitness Goals"
-                            onPress={() => router.push('/profile/fitness-goals')}
-                        />
-                        <MenuItem
-                            icon="restaurant-outline"
-                            title="Dietary Preferences"
-                            onPress={() => router.push('/profile/dietary-prefs')}
-                        />
+
                         <MenuItem
                             icon="notifications-outline"
                             title="Notifications"

@@ -12,7 +12,7 @@ import { verifyAdmin } from '../middleware/verification.js'; // also fix this pa
 const router = express.Router();
 
 // Only an authenticated admin can access these routes
-router.get('/users', authMiddleware, verifyAdmin, getAllUsers);
+router.get('/users/:id', authMiddleware, verifyAdmin, getAllUsers);
 router.put('/approve-nutritionist/:id', authMiddleware, verifyAdmin, approveNutritionist);
 router.put('/reject-nutritionist/:id', authMiddleware, verifyAdmin, rejectNutritionist);
 

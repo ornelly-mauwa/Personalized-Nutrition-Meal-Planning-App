@@ -97,10 +97,6 @@ const SystemSettings = () => {
     };
     // Logout button component
 
-
-
-
-
     return (
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
             <View style={styles.header}>

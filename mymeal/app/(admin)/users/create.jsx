@@ -1,4 +1,4 @@
-/*import React, { useState } from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -115,6 +115,7 @@ const CreateUser = () => {
                 <Card.Content>
                     <Text style={styles.sectionTitle}>Personal Information</Text>
 
+                    {/* First Name */}
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputLabel}>First Name</Text>
                         <TextInput
@@ -126,7 +127,7 @@ const CreateUser = () => {
                         {errors.firstName && <Text style={styles.errorText}>{errors.firstName}</Text>}
                     </View>
 
-                    
+                    {/* Last Name */}
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputLabel}>Last Name</Text>
                         <TextInput
@@ -138,7 +139,7 @@ const CreateUser = () => {
                         {errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>}
                     </View>
 
-                    
+                    {/* Email */}
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputLabel}>Email Address</Text>
                         <TextInput
@@ -152,7 +153,7 @@ const CreateUser = () => {
                         {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
                     </View>
 
-                    
+                    {/* Phone Number */}
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputLabel}>Phone Number</Text>
                         <TextInput
@@ -166,7 +167,7 @@ const CreateUser = () => {
 
                     <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Account Settings</Text>
 
-                
+                    {/* Password */}
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputLabel}>Password</Text>
                         <TextInput
@@ -179,7 +180,7 @@ const CreateUser = () => {
                         {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
                     </View>
 
-                    
+                    {/* Confirm Password */}
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputLabel}>Confirm Password</Text>
                         <TextInput
@@ -192,7 +193,7 @@ const CreateUser = () => {
                         {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
                     </View>
 
-            
+                    {/* User Role */}
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputLabel}>User Role</Text>
                         <View style={styles.roleContainer}>
@@ -216,7 +217,7 @@ const CreateUser = () => {
                         </View>
                     </View>
 
-                   
+                    {/* Account Status */}
                     <View style={styles.switchContainer}>
                         <View>
                             <Text style={styles.switchLabel}>Account Status</Text>
@@ -234,6 +235,7 @@ const CreateUser = () => {
                 </Card.Content>
             </Card>
 
+            {/* Form Actions */}
             <View style={styles.formActions}>
                 <TouchableOpacity
                     style={styles.cancelButton}
@@ -397,4 +399,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default CreateUser;*/
+export default CreateUser;

@@ -3,66 +3,17 @@ import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Image } 
 import { Card } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useGlobalContext } from '../../../context/GlobalProvider';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
-// Sample user data
-const USERS_DATA = [
-    {
-        id: '1',
-        name: 'John Doe',
-        email: 'johndoe@example.com',
-        role: 'User',
-        status: 'Active',
-        avatar: null,
-        lastLogin: '2 hours ago',
-        createdAt: '2023-05-15',
-    },
-    {
-        id: '2',
-        name: 'Sarah Williams',
-        email: 'sarah.williams@example.com',
-        role: 'Premium User',
-        status: 'Active',
-        avatar: null,
-        lastLogin: '1 day ago',
-        createdAt: '2023-04-22',
-    },
-    {
-        id: '3',
-        name: 'Michael Brown',
-        email: 'michael.brown@example.com',
-        role: 'User',
-        status: 'Inactive',
-        avatar: null,
-        lastLogin: '1 month ago',
-        createdAt: '2023-01-10',
-    },
-    {
-        id: '4',
-        name: 'Emily Davis',
-        email: 'emily.davis@example.com',
-        role: 'Premium User',
-        status: 'Active',
-        avatar: null,
-        lastLogin: '5 hours ago',
-        createdAt: '2023-06-02',
-    },
-    {
-        id: '5',
-        name: 'Robert Wilson',
-        email: 'robert.wilson@example.com',
-        role: 'User',
-        status: 'Suspended',
-        avatar: null,
-        lastLogin: '2 weeks ago',
-        createdAt: '2022-11-15',
-    },
-];
+
 
 const UsersIndex = () => {
+    const { user, getUsers } = useGlobalContext();
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState('All');
-
+    const USERS_DATA = [getUsers()];
     // Filter users based on search query and status
     const filteredUsers = USERS_DATA.filter(user => {
         const matchesSearch =
