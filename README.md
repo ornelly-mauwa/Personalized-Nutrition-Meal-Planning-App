@@ -54,3 +54,6 @@ This platform allows users to receive tailored meal plans while enabling nutriti
 - Push notifications
 - Advanced analytics for nutrition tracking
 - Improved admin workflow
+## Screenshots
+
+![Home Page](./screenshot1.png)
