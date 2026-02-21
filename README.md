@@ -56,4 +56,8 @@ This platform allows users to receive tailored meal plans while enabling nutriti
 - Improved admin workflow
 ## Screenshots
 
-![Home Page](./screenshot1.png)
+![User Dashboard](./screenshot1.jpeg)
+![Admin Interface](./screenshot2.jpeg)
+
+
+
